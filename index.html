@@ -183,7 +183,7 @@ button:hover{background:var(--bg4);}
 
 /* COE */
 .coe-wrap{background:var(--bg2);border:1px solid rgba(201,168,76,.2);border-radius:var(--rl);padding:1.25rem;flex:1;overflow-y:auto;}
-#coe-paper{background:#fff;color:#111;border:1px solid #ddd;border-radius:3px;font-family:'Times New Roman',Times,serif;font-size:12.5pt;line-height:1.85;max-width:640px;margin:0 auto;min-height:520px;display:flex;flex-direction:column;}
+#coe-paper{background:#fff;color:#111;border:1px solid #ddd;border-radius:3px;font-family:'Times New Roman',Times,serif;font-size:13pt;line-height:1.85;max-width:640px;margin:0 auto;min-height:520px;display:flex;flex-direction:column;}
 /* 1 space = one blank line of the 14pt body (1.85 line-height ~ 26pt).
    7 blank spaces (182pt) from the top of the sheet so the CERTIFICATION title
    sits on the 8th; the print page padding (~34pt) and the content's own top
@@ -194,7 +194,9 @@ button:hover{background:var(--bg4);}
 .coe-body{font-style:italic;text-align:justify;margin-bottom:18px;text-indent:0.5in;}
 .coe-body strong{font-style:italic;}
 .coe-issued{font-style:italic;text-indent:0.5in;}
-.coe-sig{margin-top:75pt;text-align:center;} /* ~3 blank lines of room for the signature */
+/* Signatory block sits on the right half of the sheet like the official template,
+   with the name and title centered within the block. ~3 blank lines above for the signature. */
+.coe-sig{margin-top:75pt;margin-left:50%;text-align:center;}
 .coe-sig-name{font-weight:bold;font-style:italic;text-transform:uppercase;}
 .coe-sig-title{font-style:italic;font-size:12px;}
 
