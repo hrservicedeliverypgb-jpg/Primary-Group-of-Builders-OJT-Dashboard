@@ -2322,13 +2322,16 @@ function clearChangelog(){
 function coeFill(){
   var id=document.getElementById('coe-sel').value; if(!id)return;
   var t=TR.find(function(x){return x.id===id;}); if(!t)return;
-  document.getElementById('coe-name').value=t.name.toUpperCase();
+  /* Roster stores "Last, First M." — the COE full name reads "First M. Last" */
+  var nm=t.name;
+  if(nm.indexOf(',')>-1){ var np=nm.split(','); nm=(np.slice(1).join(',').trim()+' '+np[0].trim()).trim(); }
+  document.getElementById('coe-name').value=nm.toUpperCase();
   document.getElementById('coe-ln').value=t.ln||'';
   document.getElementById('coe-pr').value=t.pr||'his';
   document.getElementById('coe-sal').value=t.pr==='her'?'Ms.':'Mr.';
   document.getElementById('coe-pos').value=t.pos.toUpperCase();
   document.getElementById('coe-loc').value=t.cc.toUpperCase();
-  var cm={PSC:'PRIMARY STRUCTURES CORPORATION',PPC:'PRIMARY PRIME CONSTRUCTION, INC.',PHI:'PHI REALTY HOLDINGS, INC.',CSI:'CSI SOUTH',ABC:'ABC CORPORATION',AMICI:'AMICI CORPORATION',CSPIC:'CSPIC'};
+  var cm={PSC:'PRIMARY STRUCTURES CORPORATION',PPC:'PRIMARY PROPERTIES CORPORATION',PHI:'PHI REALTY HOLDINGS, INC.',CSI:'CSI SOUTH',ABC:'ABC CORPORATION',AMICI:'AMICI CORPORATION',CSPIC:'CSPIC'};
   document.getElementById('coe-co').value=cm[t.aff]||t.aff;
   /* Duration — infer hours vs months from the roster duration field (e.g. "320 Hours", "12 Months") */
   var durNum=parseFloat(t.dur), durIsMonths=/month/i.test(t.dur||'');
