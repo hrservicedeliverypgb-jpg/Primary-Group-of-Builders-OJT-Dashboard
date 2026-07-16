@@ -239,7 +239,15 @@ button:hover{background:var(--bg4);}
 .req-modal{background:var(--bg2);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:1.75rem;width:min(560px,95vw);max-height:88vh;overflow-y:auto;position:relative;}
 
 @media(max-width:700px){.two-col,.charts-grid,.fg3{grid-template-columns:1fr;}.nav-btn span{display:none;}}
-@media print{html,body{background:#fff!important;height:auto!important;overflow:visible!important;}body.print-coe>*:not(#po){display:none!important;}body.print-coe #po{display:block!important;}#coe-paper{border:none!important;max-width:100%!important;}}
+@media print{
+  /* Zero page margins remove the browser-added header/footer (date, title, URL, page number);
+     #po padding restores the sheet margins so the certificate keeps its formal spacing */
+  @page{margin:0;}
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important;}
+  body.print-coe>*:not(#po){display:none!important;}
+  body.print-coe #po{display:block!important;padding:12mm 14mm;}
+  #coe-paper{border:none!important;max-width:100%!important;}
+}
 
 /* ── LOGIN ── */
 .user-tile{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--rl);border:1px solid var(--b2);background:var(--bg3);cursor:pointer;transition:all .15s;}
