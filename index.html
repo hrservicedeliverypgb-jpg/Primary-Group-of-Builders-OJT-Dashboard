@@ -191,10 +191,10 @@ button:hover{background:var(--bg4);}
 .coe-lh{height:100pt;flex-shrink:0;}
 .coe-content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 64px 52px;}
 .coe-title{text-align:center;font-size:16pt;font-weight:bold;font-style:italic;letter-spacing:.25em;margin-bottom:70pt;} /* ~3 line-spaces before the details */
-.coe-body{font-style:italic;text-align:justify;margin-bottom:18px;}
+.coe-body{font-style:italic;text-align:justify;margin-bottom:18px;text-indent:0.5in;}
 .coe-body strong{font-style:italic;}
-.coe-issued{font-style:italic;}
-.coe-sig{margin-top:75pt;text-align:right;} /* ~3 blank lines of room for the signature */
+.coe-issued{font-style:italic;text-indent:0.5in;}
+.coe-sig{margin-top:75pt;text-align:center;} /* ~3 blank lines of room for the signature */
 .coe-sig-name{font-weight:bold;font-style:italic;text-transform:uppercase;}
 .coe-sig-title{font-style:italic;font-size:12px;}
 
@@ -2364,15 +2364,15 @@ function buildCOE(){
   var dr=fdr(gv('coe-from'),gv('coe-to')),durTxt;
   if(gv('coe-dtype')==='months'){
     var mos=gv('coe-mos')||'___';
-    durTxt='for a period of <strong>'+mos+'</strong> '+(parseFloat(mos)===1?'month':'months');
+    durTxt='for a period of '+mos+' '+(parseFloat(mos)===1?'month':'months');
   }else{
     var hrs=gv('coe-hrs')||'___';
-    durTxt='with a total of <strong>'+hrs+'</strong> '+(parseFloat(hrs)===1?'hour':'hours');
+    durTxt='with a total of '+hrs+' '+(parseFloat(hrs)===1?'hour':'hours');
   }
   var ip=gv('coe-iplace')||'___',sn=gv('coe-sname')||'___',st=gv('coe-stitle')||'___',id=fdi(gv('coe-idate'));
-  document.getElementById('coe-p1').innerHTML='This is to certify that <strong>'+fn+'</strong> has completed '+pr+' On-The-Job Training with <strong>'+co+'</strong> previously assigned in our <strong>'+loc+'</strong> as <strong>OJT \u2013 '+pos+'</strong> '+durTxt+' from <strong>'+dr+'</strong>.';
-  document.getElementById('coe-p2').innerHTML='This certification has been issued upon the request of '+sal+' <strong>'+ln+'</strong> for whatever legal purpose this may serve.';
-  document.getElementById('coe-p3').innerHTML='Issued this <strong>'+id.day+'</strong> day of <strong>'+id.mo+' '+id.yr+'</strong> at '+ip+'.';
+  document.getElementById('coe-p1').innerHTML='This is to certify that <strong>'+fn+'</strong> has completed '+pr+' <strong>On-The-Job Training</strong> with <strong>'+co+'</strong> previously assigned in our <strong>'+loc+'</strong> as <strong>OJT \u2013 '+pos+'</strong> '+durTxt+' from '+dr+'.';
+  document.getElementById('coe-p2').innerHTML='This certification has been issued upon the request of '+sal+' '+ln+' for whatever legal purpose this may serve.';
+  document.getElementById('coe-p3').innerHTML='Issued this '+id.day.replace(/(st|nd|rd|th)$/,'<sup>$1</sup>')+' day of '+id.mo+' '+id.yr+' at '+ip+'.';
   document.getElementById('coe-sno').textContent=sn; document.getElementById('coe-sto').textContent=st;
 }
 function prepareCOEPrint(){
