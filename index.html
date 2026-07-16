@@ -706,7 +706,8 @@ button:hover{background:var(--bg4);}
         <div class="fg"><div><label>Assigned location</label><input type="text" id="coe-loc"></div><div><label>OJT position</label><input type="text" id="coe-pos"></div></div>
       </div>
       <div class="card"><div class="ct"><i class="ti ti-clock"></i>Duration</div>
-        <div class="fg3"><div><label>Total hours</label><input type="number" id="coe-hrs" min="1"></div><div><label>Date from</label><input type="date" id="coe-from"></div><div><label>Date to</label><input type="date" id="coe-to"></div></div>
+        <div class="fg"><div><label>Duration type</label><select id="coe-dtype" onchange="coeDurType()"><option value="hours">Total hours</option><option value="months">Months</option></select></div><div id="coe-hrs-wrap"><label>Total hours</label><input type="number" id="coe-hrs" min="1"></div><div id="coe-mos-wrap" style="display:none"><label>Number of months</label><input type="number" id="coe-mos" min="1"></div></div>
+        <div class="fg"><div><label>Date from</label><input type="date" id="coe-from"></div><div><label>Date to</label><input type="date" id="coe-to"></div></div>
       </div>
       <div class="card"><div class="ct"><i class="ti ti-pen"></i>Issuance & signatory</div>
         <div class="fg"><div><label>Issue date</label><input type="date" id="coe-idate"></div><div><label>Issue place</label><input type="text" id="coe-iplace" value="333 V. Rama Ave., Guadalupe, Cebu City"></div></div>
@@ -2321,8 +2322,23 @@ function coeFill(){
   document.getElementById('coe-loc').value=t.cc.toUpperCase();
   var cm={PSC:'PRIMARY STRUCTURES CORPORATION',PPC:'PRIMARY PRIME CONSTRUCTION, INC.',PHI:'PHI REALTY HOLDINGS, INC.',CSI:'CSI SOUTH',ABC:'ABC CORPORATION',AMICI:'AMICI CORPORATION',CSPIC:'CSPIC'};
   document.getElementById('coe-co').value=cm[t.aff]||t.aff;
-  if(t.reqHrs) document.getElementById('coe-hrs').value=t.reqHrs;
+  /* Duration — infer hours vs months from the roster duration field (e.g. "320 Hours", "12 Months") */
+  var durNum=parseFloat(t.dur), durIsMonths=/month/i.test(t.dur||'');
+  if(durIsMonths&&durNum){
+    document.getElementById('coe-dtype').value='months';
+    document.getElementById('coe-mos').value=durNum;
+  }else{
+    document.getElementById('coe-dtype').value='hours';
+    if(t.reqHrs) document.getElementById('coe-hrs').value=t.reqHrs;
+    else if(durNum) document.getElementById('coe-hrs').value=durNum;
+  }
+  coeDurType();
   document.getElementById('coe-idate').value=new Date().toISOString().split('T')[0];
+}
+function coeDurType(){
+  var m=gv('coe-dtype')==='months';
+  document.getElementById('coe-hrs-wrap').style.display=m?'none':'';
+  document.getElementById('coe-mos-wrap').style.display=m?'':'none';
 }
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function fdi(d){if(!d)return{day:'___',mo:'___',yr:'____'};var dt=new Date(d+'T00:00:00');return{day:ord(dt.getDate()),mo:dt.toLocaleDateString('en-US',{month:'long'}),yr:dt.getFullYear()};}
@@ -2330,9 +2346,16 @@ function fdr(f,t){if(!f||!t)return'___';var o={month:'long',day:'numeric',year:'
 function buildCOE(){
   var fn=gv('coe-name').toUpperCase()||'___',pr=gv('coe-pr')||'his',ln=gv('coe-ln')||'___',sal=gv('coe-sal')||'Mr.';
   var co=gv('coe-co').toUpperCase()||'___',loc=gv('coe-loc').toUpperCase()||'___',pos=gv('coe-pos').toUpperCase()||'___';
-  var hrs=gv('coe-hrs')||'___',dr=fdr(gv('coe-from'),gv('coe-to'));
+  var dr=fdr(gv('coe-from'),gv('coe-to')),durTxt;
+  if(gv('coe-dtype')==='months'){
+    var mos=gv('coe-mos')||'___';
+    durTxt='for a period of <strong>'+mos+'</strong> '+(parseFloat(mos)===1?'month':'months');
+  }else{
+    var hrs=gv('coe-hrs')||'___';
+    durTxt='with a total of <strong>'+hrs+'</strong> '+(parseFloat(hrs)===1?'hour':'hours');
+  }
   var ip=gv('coe-iplace')||'___',sn=gv('coe-sname')||'___',st=gv('coe-stitle')||'___',id=fdi(gv('coe-idate'));
-  document.getElementById('coe-p1').innerHTML='This is to certify that <strong>'+fn+'</strong> has completed '+pr+' On-The-Job Training with <strong>'+co+'</strong> previously assigned in our <strong>'+loc+'</strong> as <strong>OJT \u2013 '+pos+'</strong> with a total of <strong>'+hrs+'</strong> hours from <strong>'+dr+'</strong>.';
+  document.getElementById('coe-p1').innerHTML='This is to certify that <strong>'+fn+'</strong> has completed '+pr+' On-The-Job Training with <strong>'+co+'</strong> previously assigned in our <strong>'+loc+'</strong> as <strong>OJT \u2013 '+pos+'</strong> '+durTxt+' from <strong>'+dr+'</strong>.';
   document.getElementById('coe-p2').innerHTML='This certification has been issued upon the request of '+sal+' <strong>'+ln+'</strong> for whatever legal purpose this may serve.';
   document.getElementById('coe-p3').innerHTML='Issued this <strong>'+id.day+'</strong> day of <strong>'+id.mo+' '+id.yr+'</strong> at '+ip+'.';
   document.getElementById('coe-sno').textContent=sn; document.getElementById('coe-sto').textContent=st;
