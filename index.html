@@ -264,8 +264,9 @@ button:hover{background:var(--bg4);}
 .user-tile-role{font-size:12px;color:var(--text3);margin-top:1px;}
 .user-tile-arrow{margin-left:auto;font-size:16px;color:var(--text3);}
 
-.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 30% 40%,rgba(37,99,235,.07) 0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(37,99,235,.05) 0%,transparent 50%);}
-.login-box{background:var(--bg2);border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:2.5rem 2.25rem;width:min(400px,92vw);box-shadow:0 0 60px rgba(37,99,235,.08);}
+.login-screen{position:fixed;inset:0;background:var(--gold);z-index:9000;display:flex;align-items:center;justify-content:center;overflow:hidden;background-image:radial-gradient(ellipse at 18% 15%,rgba(255,255,255,.1) 0%,transparent 45%),radial-gradient(ellipse at 85% 85%,rgba(77,124,199,.35) 0%,transparent 55%),radial-gradient(ellipse at 50% 105%,rgba(27,58,107,.5) 0%,transparent 60%);}
+.login-bg-icon{position:absolute;color:rgba(255,255,255,.06);pointer-events:none;}
+.login-box{position:relative;background:var(--bg2);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:2.5rem 2.25rem;width:min(400px,92vw);box-shadow:0 25px 70px rgba(8,15,35,.45);}
 .login-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin:0 auto 1.25rem;box-shadow:0 0 20px rgba(37,99,235,.3);}
 .login-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);text-align:center;margin-bottom:4px;}
 .login-sub{font-size:14px;color:var(--text3);text-align:center;margin-bottom:1.75rem;}
@@ -301,6 +302,10 @@ button:hover{background:var(--bg4);}
 
 <!-- LOGIN SCREEN -->
 <div class="login-screen" id="login-screen">
+  <i class="ti ti-helmet login-bg-icon" style="left:6%;top:12%;font-size:150px;transform:rotate(-12deg)"></i>
+  <i class="ti ti-building-skyscraper login-bg-icon" style="right:7%;top:8%;font-size:190px;transform:rotate(8deg)"></i>
+  <i class="ti ti-ruler-2 login-bg-icon" style="left:10%;bottom:8%;font-size:130px;transform:rotate(20deg)"></i>
+  <i class="ti ti-tools login-bg-icon" style="right:9%;bottom:10%;font-size:140px;transform:rotate(-15deg)"></i>
   <div class="login-box">
     <div class="login-logo"><i class="ti ti-helmet"></i></div>
     <div class="login-title">Primary Group of Builders</div>
@@ -332,7 +337,10 @@ button:hover{background:var(--bg4);}
       </div>
       <div class="login-field">
         <label>Password</label>
-        <input type="password" id="login-pass" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()">
+        <div style="position:relative">
+          <i class="ti ti-lock" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none"></i>
+          <input type="password" id="login-pass" placeholder="Enter your password" style="padding-left:36px" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
       </div>
       <button class="login-btn" onclick="doLogin()"><i class="ti ti-login" style="font-size:14px;margin-right:6px"></i>Sign in</button>
     </div>
