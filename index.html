@@ -429,7 +429,7 @@ button:hover{background:var(--bg4);}
     </div>
     <div class="card gb" style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin-bottom:0">
       <div class="ct"><i class="ti ti-table"></i>2025 OJT trainees</div>
-      <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>School</th><th>Position</th><th>Affiliate</th><th>Cost center</th><th>Duration</th><th>Allowance</th><th>HR in-charge</th><th>Date started</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb25"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>School</th><th>Position</th><th>Affiliate</th><th>Cost center</th><th>Duration</th><th>Allowance</th><th>HR in-charge</th><th>Date started</th><th>Uniform</th><th>Clearance</th><th>Completion</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb25"></tbody></table></div>
     </div>
   </div>
 
@@ -441,7 +441,7 @@ button:hover{background:var(--bg4);}
     </div>
     <div class="card gb" style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin-bottom:0">
       <div class="ct"><i class="ti ti-table"></i>2026 OJT trainees</div>
-      <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Institution</th><th>Position</th><th>Supervisor</th><th>Affiliate</th><th>Cost center</th><th>Duration</th><th>Allowance</th><th>HR in-charge</th><th>Date started</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb26"></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Institution</th><th>Position</th><th>Supervisor</th><th>Affiliate</th><th>Cost center</th><th>Duration</th><th>Allowance</th><th>HR in-charge</th><th>Date started</th><th>Uniform</th><th>Clearance</th><th>Completion</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tb26"></tbody></table></div>
     </div>
   </div>
 
@@ -456,6 +456,7 @@ button:hover{background:var(--bg4);}
         <div class="fg3"><div><label>Allowance</label><input type="text" id="n-allow" placeholder="e.g. 375.75"></div><div><label>HR in-charge</label><input type="text" id="n-hr"></div><div><label>Date started</label><input type="date" id="n-date"></div></div>
         <div class="fg"><div><label>Batch year</label><select id="n-batch"><option value="2026">2026</option><option value="2025">2025</option></select></div><div><label>Pronoun (for COE)</label><select id="n-pr"><option value="his">his</option><option value="her">her</option></select></div></div>
         <div class="ff"><label>Last name (for COE)</label><input type="text" id="n-ln" placeholder="e.g. Dela Cruz"></div>
+        <div class="fg3"><div><label>Uniform</label><select id="n-uniform"><option value="">—</option><option value="yes">Yes</option><option value="no">No</option></select></div><div><label>Clearance</label><select id="n-clearance"><option value="">—</option><option value="yes">Yes</option><option value="no">No</option></select></div><div><label>Completion date</label><input type="date" id="n-compdate"></div></div>
         <div style="display:flex;gap:8px">
           <button class="btn-gold" onclick="addTrainee()"><i class="ti ti-check" style="font-size:14.5px;margin-right:4px"></i>Save trainee</button>
           <button class="btn-outline" onclick="clearAdd()">Clear</button>
@@ -886,6 +887,8 @@ button:hover{background:var(--bg4);}
     <div class="modal-sec">Allowance & status</div>
     <div class="fg"><div><label>Allowance</label><input type="text" id="em-allow"></div><div><label>Status</label><select id="em-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="cleared">Cleared</option></select></div></div>
     <div class="fg"><div><label>Date started</label><input type="date" id="em-date"></div><div><label>Batch</label><select id="em-batch"><option value="2025">2025</option><option value="2026">2026</option></select></div></div>
+    <div class="modal-sec">Uniform, clearance & completion</div>
+    <div class="fg3"><div><label>Uniform</label><select id="em-uniform"><option value="">—</option><option value="yes">Yes</option><option value="no">No</option></select></div><div><label>Clearance</label><select id="em-clearance"><option value="">—</option><option value="yes">Yes</option><option value="no">No</option></select></div><div><label>Completion date</label><input type="date" id="em-compdate"></div></div>
     <div class="ff"><label>Notes</label><textarea id="em-notes" rows="2" placeholder="Any notes…"></textarea></div>
     <div class="modal-actions">
       <button class="btn-gold" onclick="saveEdit()"><i class="ti ti-check" style="font-size:14.5px;margin-right:4px"></i>Save changes</button>
@@ -1118,11 +1121,12 @@ function renderBatch(tbId,batch,q,af,sf){
     if(af&&t.aff!==af)return; if(sf&&t.status!==sf)return;
     var tr=document.createElement('tr');
     var cols=['<td class="mono">'+t.id+'</td>','<td style="font-weight:500;white-space:nowrap"><span style="display:inline-block;width:3px;height:14px;background:'+(AC[t.aff]||'#888')+';border-radius:2px;margin-right:8px;vertical-align:middle"></span>'+t.name+'</td>'];
-    if(batch==='2026') cols.push('<td style="font-size:14px;color:var(--text2)">'+t.school+'</td>','<td>'+t.pos+'</td>','<td style="font-size:12.5px">'+t.sup+'</td>','<td>'+affBadge(t.aff)+'</td>','<td style="font-size:12.5px">'+t.cc+'</td>','<td style="font-size:12.5px">'+t.dur+'</td>','<td></td>','<td style="font-size:12.5px">'+t.hr+'</td>','<td style="font-size:12.5px">'+fd(t.started)+'</td>','<td></td>','<td></td>');
-    else cols.push('<td style="font-size:14px;color:var(--text2)">'+t.school+'</td>','<td>'+t.pos+'</td>','<td>'+affBadge(t.aff)+'</td>','<td style="font-size:12.5px">'+t.cc+'</td>','<td style="font-size:12.5px">'+t.dur+'</td>','<td></td>','<td style="font-size:12.5px">'+t.hr+'</td>','<td style="font-size:12.5px">'+fd(t.started)+'</td>','<td></td>','<td></td>');
+    var ucCols=['<td style="font-size:12.5px;text-transform:capitalize">'+(t.uniform||'—')+'</td>','<td style="font-size:12.5px;text-transform:capitalize">'+(t.clearance||'—')+'</td>','<td style="font-size:12.5px">'+(t.compdate?fd(t.compdate):'—')+'</td>'];
+    if(batch==='2026') cols.push('<td style="font-size:14px;color:var(--text2)">'+t.school+'</td>','<td>'+t.pos+'</td>','<td style="font-size:12.5px">'+t.sup+'</td>','<td>'+affBadge(t.aff)+'</td>','<td style="font-size:12.5px">'+t.cc+'</td>','<td style="font-size:12.5px">'+t.dur+'</td>','<td></td>','<td style="font-size:12.5px">'+t.hr+'</td>','<td style="font-size:12.5px">'+fd(t.started)+'</td>',ucCols[0],ucCols[1],ucCols[2],'<td></td>','<td></td>');
+    else cols.push('<td style="font-size:14px;color:var(--text2)">'+t.school+'</td>','<td>'+t.pos+'</td>','<td>'+affBadge(t.aff)+'</td>','<td style="font-size:12.5px">'+t.cc+'</td>','<td style="font-size:12.5px">'+t.dur+'</td>','<td></td>','<td style="font-size:12.5px">'+t.hr+'</td>','<td style="font-size:12.5px">'+fd(t.started)+'</td>',ucCols[0],ucCols[1],ucCols[2],'<td></td>','<td></td>');
     tr.innerHTML=cols.join('');
-    if(batch==='2026'){ tr.cells[8].appendChild(mkAllow(t.id,t.allow)); tr.cells[11].appendChild(mkSsel(t.id,t.status)); tr.cells[12].appendChild(mkActions(t.id,batch)); }
-    else { tr.cells[7].appendChild(mkAllow(t.id,t.allow)); tr.cells[10].appendChild(mkSsel(t.id,t.status)); tr.cells[11].appendChild(mkActions(t.id,batch)); }
+    if(batch==='2026'){ tr.cells[8].appendChild(mkAllow(t.id,t.allow)); tr.cells[14].appendChild(mkSsel(t.id,t.status)); tr.cells[15].appendChild(mkActions(t.id,batch)); }
+    else { tr.cells[7].appendChild(mkAllow(t.id,t.allow)); tr.cells[13].appendChild(mkSsel(t.id,t.status)); tr.cells[14].appendChild(mkActions(t.id,batch)); }
     tb.appendChild(tr);
   });
 }
@@ -1142,11 +1146,11 @@ function addTrainee(){
   var id=gv('n-id'),name=gv('n-name');
   if(!id||!name){alert('ID and name are required.');return;}
   if(TR.find(function(t){return t.id===id;})){alert('ID already exists.');return;}
-  TR.push({id:id,name:name,ln:gv('n-ln')||(name.split(',')[0]||'').trim(),pr:gv('n-pr'),school:gv('n-school'),pos:gv('n-pos'),sup:gv('n-sup'),aff:gv('n-aff'),cc:gv('n-cc'),dur:gv('n-dur'),allow:gv('n-allow'),hr:gv('n-hr'),started:gv('n-date'),batch:gv('n-batch'),status:'active',notes:'',reqHrs:null});
+  TR.push({id:id,name:name,ln:gv('n-ln')||(name.split(',')[0]||'').trim(),pr:gv('n-pr'),school:gv('n-school'),pos:gv('n-pos'),sup:gv('n-sup'),aff:gv('n-aff'),cc:gv('n-cc'),dur:gv('n-dur'),allow:gv('n-allow'),hr:gv('n-hr'),started:gv('n-date'),batch:gv('n-batch'),status:'active',notes:'',reqHrs:null,uniform:gv('n-uniform'),clearance:gv('n-clearance'),compdate:gv('n-compdate')});
   addLog('added','Added new OJT: '+name+' ('+id+') — '+gv('n-pos')+', '+gv('n-aff')+', Batch '+gv('n-batch'));
   clearAdd(); render25(); render26(); updKPIs(); refreshSelects(); saveData(); alert('Trainee added!');
 }
-function clearAdd(){ ['n-id','n-name','n-school','n-pos','n-sup','n-cc','n-dur','n-allow','n-hr','n-ln'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('n-date').value=''; }
+function clearAdd(){ ['n-id','n-name','n-school','n-pos','n-sup','n-cc','n-dur','n-allow','n-hr','n-ln'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('n-date').value=''; document.getElementById('n-uniform').value=''; document.getElementById('n-clearance').value=''; document.getElementById('n-compdate').value=''; }
 
 /* ── DELETE ── */
 function openDelModal(id){
@@ -1217,7 +1221,7 @@ function openEditModal(id){
   var t=TR.find(function(x){return x.id===id;}); if(!t)return;
   document.getElementById('em-title').textContent='Edit — '+t.name;
   document.getElementById('em-id').value=id;
-  var fields={name:'em-name',ln:'em-ln',pr:'em-pr',school:'em-school',pos:'em-pos',sup:'em-sup',aff:'em-aff',cc:'em-cc',hr:'em-hr',dur:'em-dur',allow:'em-allow',status:'em-status',started:'em-date',notes:'em-notes'};
+  var fields={name:'em-name',ln:'em-ln',pr:'em-pr',school:'em-school',pos:'em-pos',sup:'em-sup',aff:'em-aff',cc:'em-cc',hr:'em-hr',dur:'em-dur',allow:'em-allow',status:'em-status',started:'em-date',notes:'em-notes',uniform:'em-uniform',clearance:'em-clearance',compdate:'em-compdate'};
   Object.keys(fields).forEach(function(k){ var el=document.getElementById(fields[k]); if(el) el.value = (k==='started'?t.started||'':t[k]||''); });
   document.getElementById('em-batch').value=t.batch||'2025';
   document.getElementById('edit-modal').classList.add('open');
@@ -1225,7 +1229,7 @@ function openEditModal(id){
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function saveEdit(){
   var id=document.getElementById('em-id').value, t=TR.find(function(x){return x.id===id;}); if(!t)return;
-  ['name','ln','pr','school','pos','sup','aff','cc','hr','dur','allow','notes'].forEach(function(k){ t[k]=document.getElementById('em-'+k).value; });
+  ['name','ln','pr','school','pos','sup','aff','cc','hr','dur','allow','notes','uniform','clearance','compdate'].forEach(function(k){ t[k]=document.getElementById('em-'+k).value; });
   t.status=document.getElementById('em-status').value; t.started=document.getElementById('em-date').value; t.batch=document.getElementById('em-batch').value;
   addLog('edited','Edited '+t.name+' ('+id+')');
   closeModal('edit-modal'); render25(); render26(); updKPIs(); saveData(); showToast();
@@ -2112,9 +2116,9 @@ function exportRoster(){
       &&(!aF||t.aff===aF)
       &&(!sF||t.status===sF);
   });
-  var rows=[['ID','Name','Last Name','Pronoun','School','Position','Supervisor','Affiliate','Cost Center','Duration','Allowance','HR In-charge','Date Started','Batch','Status','Required Hours','Notes']];
+  var rows=[['ID','Name','Last Name','Pronoun','School','Position','Supervisor','Affiliate','Cost Center','Duration','Allowance','HR In-charge','Date Started','Batch','Uniform','Clearance','Completion Date','Status','Required Hours','Notes']];
   list.forEach(function(t){
-    rows.push([t.id,t.name,t.ln||'',t.pr||'',t.school||'',t.pos||'',t.sup||'',t.aff||'',t.cc||'',t.dur||'',t.allow||'',t.hr||'',t.started||'',t.batch||'',t.status||'',t.reqHrs||'',t.notes||'']);
+    rows.push([t.id,t.name,t.ln||'',t.pr||'',t.school||'',t.pos||'',t.sup||'',t.aff||'',t.cc||'',t.dur||'',t.allow||'',t.hr||'',t.started||'',t.batch||'',t.uniform||'',t.clearance||'',t.compdate||'',t.status||'',t.reqHrs||'',t.notes||'']);
   });
   downloadCSV('OJT_Roster_'+new Date().toISOString().slice(0,10)+'.csv', makeCSV(rows));
 }
@@ -2732,6 +2736,93 @@ try{
     }
   }
 }catch(e){}
+</script>
+
+<script type="module">
+/* ── FIRESTORE SYNC ──
+   Shares TR/periods/reqData/changelog across every logged-in browser (TRT/TAT/EXE) instead of
+   each browser's own localStorage. localStorage stays as the offline/instant-paint fallback —
+   loadData() + the first render already ran synchronously before this module executes. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCuaA8MKEE3w7ajYD5p3TvQDOBOqYLe1Is",
+  authDomain: "pgb-ojt-dashboard.firebaseapp.com",
+  projectId: "pgb-ojt-dashboard",
+  storageBucket: "pgb-ojt-dashboard.firebasestorage.app",
+  messagingSenderId: "380313634770",
+  appId: "1:380313634770:web:327fab3501a192491aaa0b",
+  measurementId: "G-ER0NERG0W9"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+const trDoc = doc(db, 'ojt_state', 'trainees');
+const periodsDoc = doc(db, 'ojt_state', 'periods');
+const reqDoc = doc(db, 'ojt_state', 'requirements');
+const clDoc = doc(db, 'ojt_state', 'changelog');
+
+function refreshAllUI(){
+  ['render25','render26','updKPIs','refreshSelects','renderTracker','drawOverview','renderReq','renderArchiveTab','renderChangelog','drawAnalytics','renderPeriods','renderHistory'].forEach(function(fn){
+    try{ window[fn](); }catch(e){}
+  });
+}
+
+var trSeeded=false, periodsSeeded=false, reqSeeded=false, clSeeded=false;
+
+onSnapshot(trDoc, function(snap){
+  if(snap.exists()){
+    var list=snap.data().list||[];
+    window.TR.length=0; list.forEach(function(t){ window.TR.push(t); });
+    refreshAllUI();
+  } else if(!trSeeded){
+    setDoc(trDoc,{list:window.TR}).catch(function(e){ console.warn('Firestore seed (trainees) failed:',e); });
+  }
+  trSeeded=true;
+},function(e){ console.warn('Trainees sync error:',e); });
+
+onSnapshot(periodsDoc, function(snap){
+  if(snap.exists()){
+    window.periods=snap.data().list||[];
+    refreshAllUI();
+  } else if(!periodsSeeded){
+    setDoc(periodsDoc,{list:window.periods||[]}).catch(function(e){ console.warn('Firestore seed (periods) failed:',e); });
+  }
+  periodsSeeded=true;
+},function(e){ console.warn('Periods sync error:',e); });
+
+onSnapshot(reqDoc, function(snap){
+  if(snap.exists()){
+    window.reqData=snap.data().data||{};
+    refreshAllUI();
+  } else if(!reqSeeded){
+    setDoc(reqDoc,{data:window.reqData||{}}).catch(function(e){ console.warn('Firestore seed (requirements) failed:',e); });
+  }
+  reqSeeded=true;
+},function(e){ console.warn('Requirements sync error:',e); });
+
+onSnapshot(clDoc, function(snap){
+  if(snap.exists()){
+    window.changelog=snap.data().list||[];
+    refreshAllUI();
+  } else if(!clSeeded){
+    setDoc(clDoc,{list:window.changelog||[]}).catch(function(e){ console.warn('Firestore seed (changelog) failed:',e); });
+  }
+  clSeeded=true;
+},function(e){ console.warn('Changelog sync error:',e); });
+
+/* saveData() keeps its existing localStorage write (instant, offline-friendly), and now also
+   pushes the same four arrays up to Firestore so every other open dashboard picks them up. */
+var localSaveData=window.saveData;
+window.saveData=function(){
+  if(typeof localSaveData==='function') localSaveData();
+  setDoc(trDoc,{list:window.TR}).catch(function(e){ console.warn('Firestore save (trainees) failed:',e); });
+  setDoc(periodsDoc,{list:window.periods}).catch(function(e){ console.warn('Firestore save (periods) failed:',e); });
+  setDoc(reqDoc,{data:window.reqData}).catch(function(e){ console.warn('Firestore save (requirements) failed:',e); });
+  setDoc(clDoc,{list:window.changelog}).catch(function(e){ console.warn('Firestore save (changelog) failed:',e); });
+};
 </script>
 </body>
 </html>
