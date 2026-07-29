@@ -464,6 +464,7 @@ button:hover{background:var(--bg4);}
         <div class="fg"><div><label>School / Institution</label><input type="text" id="n-school"></div><div><label>Position / Course</label><input type="text" id="n-pos"></div></div>
         <div class="fg"><div><label>Supervisor</label><input type="text" id="n-sup"></div><div><label>Affiliate</label><select id="n-aff"><option value="PSC">PSC</option><option value="PPC">PPC</option><option value="PHI">PHI</option><option value="CSI">CSI</option><option value="ABC">ABC</option><option value="AMICI">AMICI</option><option value="CSPIC">CSPIC</option></select></div></div>
         <div class="fg"><div><label>Cost center</label><input type="text" id="n-cc"></div><div><label>Duration</label><input type="text" id="n-dur" placeholder="e.g. 320 HOURS"></div></div>
+        <div class="ff"><label>Required hours</label><input type="number" id="n-reqhrs" placeholder="e.g. 900 — needed to show progress % in the Hours tab"></div>
         <div class="fg3"><div><label>Allowance</label><input type="text" id="n-allow" placeholder="e.g. 375.75"></div><div><label>HR in-charge</label><input type="text" id="n-hr"></div><div><label>Date started</label><input type="date" id="n-date"></div></div>
         <div class="fg"><div><label>Batch year</label><select id="n-batch"><option value="2026">2026</option><option value="2025">2025</option></select></div><div><label>Pronoun (for COE)</label><select id="n-pr"><option value="his">his</option><option value="her">her</option></select></div></div>
         <div class="ff"><label>Last name (for COE)</label><input type="text" id="n-ln" placeholder="e.g. Dela Cruz"></div>
@@ -895,6 +896,7 @@ button:hover{background:var(--bg4);}
     <div class="fg"><div><label>Position</label><input type="text" id="em-pos"></div><div><label>Supervisor</label><input type="text" id="em-sup"></div></div>
     <div class="fg"><div><label>Affiliate</label><select id="em-aff"><option>PSC</option><option>PPC</option><option>PHI</option><option>CSI</option><option>ABC</option><option>AMICI</option><option>CSPIC</option></select></div><div><label>Cost center</label><input type="text" id="em-cc"></div></div>
     <div class="fg"><div><label>HR in-charge</label><input type="text" id="em-hr"></div><div><label>Duration</label><input type="text" id="em-dur"></div></div>
+    <div class="ff"><label>Required hours</label><input type="number" id="em-reqhrs" placeholder="e.g. 900 — needed to show progress % in the Hours tab"></div>
     <div class="modal-sec">Allowance & status</div>
     <div class="fg"><div><label>Allowance</label><input type="text" id="em-allow"></div><div><label>Status</label><select id="em-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="cleared">Cleared</option></select></div></div>
     <div class="fg"><div><label>Date started</label><input type="date" id="em-date"></div><div><label>Batch</label><select id="em-batch"><option value="2025">2025</option><option value="2026">2026</option></select></div></div>
@@ -1162,11 +1164,12 @@ function addTrainee(){
   var id=gv('n-id'),name=gv('n-name');
   if(!id||!name){alert('ID and name are required.');return;}
   if(TR.find(function(t){return t.id===id;})){alert('ID already exists.');return;}
-  TR.push({id:id,name:name,ln:gv('n-ln')||(name.split(',')[0]||'').trim(),pr:gv('n-pr'),school:gv('n-school'),pos:gv('n-pos'),sup:gv('n-sup'),aff:gv('n-aff'),cc:gv('n-cc'),dur:gv('n-dur'),allow:gv('n-allow'),hr:gv('n-hr'),started:gv('n-date'),batch:gv('n-batch'),status:'active',notes:'',reqHrs:null,uniform:gv('n-uniform'),clearance:gv('n-clearance'),compdate:gv('n-compdate')});
+  var nrh=gv('n-reqhrs');
+  TR.push({id:id,name:name,ln:gv('n-ln')||(name.split(',')[0]||'').trim(),pr:gv('n-pr'),school:gv('n-school'),pos:gv('n-pos'),sup:gv('n-sup'),aff:gv('n-aff'),cc:gv('n-cc'),dur:gv('n-dur'),allow:gv('n-allow'),hr:gv('n-hr'),started:gv('n-date'),batch:gv('n-batch'),status:'active',notes:'',reqHrs:nrh?parseFloat(nrh):null,uniform:gv('n-uniform'),clearance:gv('n-clearance'),compdate:gv('n-compdate')});
   addLog('added','Added new OJT: '+name+' ('+id+') — '+gv('n-pos')+', '+gv('n-aff')+', Batch '+gv('n-batch'));
   clearAdd(); render25(); render26(); updKPIs(); refreshSelects(); saveData(); alert('Trainee added!');
 }
-function clearAdd(){ ['n-id','n-name','n-school','n-pos','n-sup','n-cc','n-dur','n-allow','n-hr','n-ln'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('n-date').value=''; document.getElementById('n-uniform').value=''; document.getElementById('n-clearance').value=''; document.getElementById('n-compdate').value=''; }
+function clearAdd(){ ['n-id','n-name','n-school','n-pos','n-sup','n-cc','n-dur','n-allow','n-hr','n-ln','n-reqhrs'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('n-date').value=''; document.getElementById('n-uniform').value=''; document.getElementById('n-clearance').value=''; document.getElementById('n-compdate').value=''; }
 
 /* ── DELETE ── */
 function openDelModal(id){
@@ -1241,6 +1244,7 @@ function openEditModal(id){
   document.getElementById('em-id').value=id;
   var fields={name:'em-name',ln:'em-ln',pr:'em-pr',school:'em-school',pos:'em-pos',sup:'em-sup',aff:'em-aff',cc:'em-cc',hr:'em-hr',dur:'em-dur',allow:'em-allow',status:'em-status',started:'em-date',notes:'em-notes',uniform:'em-uniform',clearance:'em-clearance',compdate:'em-compdate'};
   Object.keys(fields).forEach(function(k){ var el=document.getElementById(fields[k]); if(el) el.value = (k==='started'?t.started||'':t[k]||''); });
+  document.getElementById('em-reqhrs').value=t.reqHrs||'';
   document.getElementById('em-batch').value=t.batch||'2025';
   document.getElementById('edit-modal').classList.add('open');
 }
@@ -1249,6 +1253,7 @@ function saveEdit(){
   var id=document.getElementById('em-id').value, t=TR.find(function(x){return x.id===id;}); if(!t)return;
   ['name','ln','pr','school','pos','sup','aff','cc','hr','dur','allow','notes','uniform','clearance','compdate'].forEach(function(k){ t[k]=document.getElementById('em-'+k).value; });
   t.status=document.getElementById('em-status').value; t.started=document.getElementById('em-date').value; t.batch=document.getElementById('em-batch').value;
+  var rh=document.getElementById('em-reqhrs').value; t.reqHrs=rh?parseFloat(rh):null;
   addLog('edited','Edited '+t.name+' ('+id+')');
   closeModal('edit-modal'); render25(); render26(); updKPIs(); saveData(); showToast();
 }
