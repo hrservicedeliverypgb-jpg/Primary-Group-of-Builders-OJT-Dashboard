@@ -774,7 +774,7 @@ button:hover{background:var(--bg4);}
   <div class="kpi-row" id="kpi-arc"></div>
   <div class="card gb" style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin-bottom:0">
     <div class="ct"><i class="ti ti-archive"></i>Archived trainees</div>
-    <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Position</th><th>Affiliate</th><th>Cost center</th><th>Batch</th><th>Archived on</th><th>Actions</th></tr></thead><tbody id="tb-arc"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Position</th><th>Affiliate</th><th>Cost center</th><th>Batch</th><th>Archived on</th><th>Completion date</th><th>Actions</th></tr></thead><tbody id="tb-arc"></tbody></table></div>
   </div>
 </div>
 
@@ -1119,6 +1119,11 @@ function mkAllow(id,val){
   i.addEventListener('change',function(){ var t=TR.find(function(x){return x.id===id;}); if(t){t.allow=i.value; saveData();} });
   return i;
 }
+function mkCompDate(id,val){
+  var i=document.createElement('input'); i.type='date'; i.className='allow-inp'; i.value=val||'';
+  i.addEventListener('change',function(){ var t=TR.find(function(x){return x.id===id;}); if(t){t.compdate=i.value; saveData();} });
+  return i;
+}
 function mkActions(id,batch){
   var w=document.createElement('div'); w.style.cssText='display:flex;gap:5px;';
   var eb=document.createElement('button'); eb.className='btn-outline btn-sm'; eb.innerHTML='<i class="ti ti-edit" style="font-size:12px;margin-right:3px"></i>Edit'; eb.onclick=function(){openEditModal(id);}; w.appendChild(eb);
@@ -1200,7 +1205,7 @@ function renderArchiveTab(){
   document.getElementById('kpi-arc').innerHTML=kpiCard('Total archived',archived.length,'Soft deleted','#9333ea')+kpiCard('2026 batch',archived.filter(function(t){return t.batch==='2026';}).length,'','var(--gold2)')+kpiCard('2025 batch',archived.filter(function(t){return t.batch==='2025';}).length,'','#94a3b8')+kpiCard('Can restore',archived.length,'Anytime','#16a34a');
   var filtered=archived.filter(function(t){return !q||(t.name+' '+t.id).toLowerCase().indexOf(q)!==-1;});
   var tb=document.getElementById('tb-arc'); tb.innerHTML='';
-  if(!filtered.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem">No archived trainees.</td></tr>';return;}
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:2rem">No archived trainees.</td></tr>';return;}
   filtered.forEach(function(t){
     var tr=document.createElement('tr');
     tr.innerHTML='<td class="mono">'+t.id+'</td>'
@@ -1210,8 +1215,10 @@ function renderArchiveTab(){
       +'<td style="font-size:12.5px">'+t.cc+'</td>'
       +'<td><span class="badge '+(t.batch==='2026'?'b-gold':'b-n')+'">'+t.batch+'</span></td>'
       +'<td style="font-size:14px;color:var(--text2)">'+(t.archivedOn||'—')+'</td>'
+      +'<td></td>'
       +'<td></td>';
-    var actCell = tr.cells[7];
+    tr.cells[7].appendChild(mkCompDate(t.id,t.compdate));
+    var actCell = tr.cells[8];
     var restoreBtn = document.createElement('button');
     restoreBtn.className = 'btn-outline btn-sm';
     restoreBtn.innerHTML = '<i class="ti ti-restore" style="font-size:12px;margin-right:3px"></i>Restore';
