@@ -1349,7 +1349,7 @@ function renderHistory(){
   var filter=histSearchEl?histSearchEl.value.trim().toLowerCase():'';
   var w=document.getElementById('hist-cards');
   if(!periods.length){w.innerHTML='<div class="es"><i class="ti ti-calendar"></i>No periods saved yet.</div>';return;}
-  var toShow=TR.filter(function(t){return (filter?(t.name.toLowerCase().indexOf(filter)!==-1||t.id.toLowerCase().indexOf(filter)!==-1):true)&&getTH(t.id)>0;});
+  var toShow=TR.filter(function(t){return !t.archived&&(filter?(t.name.toLowerCase().indexOf(filter)!==-1||t.id.toLowerCase().indexOf(filter)!==-1):true)&&getTH(t.id)>0;});
   if(!toShow.length){w.innerHTML='<div class="es"><i class="ti ti-user"></i>No hours logged yet.</div>';return;}
   w.innerHTML=toShow.map(function(t){
     var total=getTH(t.id),req=t.reqHrs,pct=req?Math.min(Math.round(total/req*100),100):null,bc=AC[t.aff]||'#475569';
@@ -2721,7 +2721,7 @@ function refreshSelects(){
   ['h-sel','coe-sel'].forEach(function(sid){
     var sel=document.getElementById(sid); if(!sel)return; var cur=sel.value;
     while(sel.options.length>1)sel.remove(1);
-    TR.forEach(function(t){ var o=document.createElement('option'); o.value=t.id; o.textContent=(sid==='h-sel'?'['+t.id+'] ':'')+t.name+(sid==='h-sel'?'':' ('+t.id+')'); sel.appendChild(o); });
+    TR.filter(function(t){return sid!=='h-sel'||!t.archived;}).forEach(function(t){ var o=document.createElement('option'); o.value=t.id; o.textContent=(sid==='h-sel'?'['+t.id+'] ':'')+t.name+(sid==='h-sel'?'':' ('+t.id+')'); sel.appendChild(o); });
     sel.value=cur;
   });
 }
