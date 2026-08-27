@@ -883,6 +883,15 @@ button:hover{background:var(--bg4);}
   </div>
 </div>
 
+<!-- HOURS HISTORY MODAL -->
+<div class="modal-bg" id="hrs-modal">
+  <div class="modal">
+    <div class="modal-title" id="hrs-modal-title">Hours history</div>
+    <button class="modal-close" onclick="closeModal('hrs-modal')"><i class="ti ti-x"></i></button>
+    <div id="hrs-modal-body"></div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-bg" id="edit-modal">
   <div class="modal">
@@ -1351,76 +1360,124 @@ function renderHistory(){
   if(!periods.length){w.innerHTML='<div class="es"><i class="ti ti-calendar"></i>No periods saved yet.</div>';return;}
   var toShow=TR.filter(function(t){return !t.archived&&(filter?(t.name.toLowerCase().indexOf(filter)!==-1||t.id.toLowerCase().indexOf(filter)!==-1):true)&&getTH(t.id)>0;});
   if(!toShow.length){w.innerHTML='<div class="es"><i class="ti ti-user"></i>No hours logged yet.</div>';return;}
-  w.innerHTML=toShow.map(function(t){
-    var total=getTH(t.id),req=t.reqHrs,pct=req?Math.min(Math.round(total/req*100),100):null,bc=AC[t.aff]||'#475569';
-    var rows=periods.filter(function(p){return p.entries.find(function(e){return e.id===t.id;});}); var running=0;
-    return '<div class="card" style="border-left:3px solid '+bc+';border-radius:0 14px 14px 0;margin-bottom:.7rem"><div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div><p style="margin:0;font-size:15px;font-weight:600;color:var(--text);font-family:Playfair Display,serif">'+t.name+'</p><p style="margin:3px 0 0;font-size:12px;color:var(--text3)">'+t.id+' &bull; '+t.pos+' &bull; '+t.cc+'</p><div style="margin-top:5px">'+affBadge(t.aff)+'</div></div><div style="text-align:right"><p style="margin:0;font-size:22px;font-weight:600;color:var(--gold2);font-family:Playfair Display,serif">'+total+' <span style="font-size:14.5px;font-weight:400;color:var(--text2)">hrs</span></p>'+(req?'<p style="margin:2px 0 0;font-size:12px;color:var(--text3)">of '+req+' required &bull; '+pct+'%</p>':'')+'</div></div>'+(req?'<div style="margin-bottom:10px"><div class="pbg" style="height:6px"><div class="pbar" style="width:'+pct+'%;height:6px;background:'+bc+'"></div></div></div>':'')+'<table><thead><tr><th>Covering period</th><th>Hours rendered</th><th>Running total</th><th style="width:130px">Actions</th></tr></thead><tbody id="hist-rows-'+t.id+'"></tbody></table><div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--text3)">'+rows.length+' period'+(rows.length!==1?'s':'')+'</span>'+pBadge(total,req)+'</div></div>';
-  }).join('');
 
-  /* populate history table rows via DOM for edit support */
+  var tbl=document.createElement('table');
+  tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13.5px;';
+  tbl.innerHTML='<thead><tr>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500;white-space:nowrap">Trainee</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Affiliate</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Batch</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Rendered</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Required</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Progress</th>'
+    +'<th style="text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:500">Status</th>'
+    +'</tr></thead><tbody>';
+
+  var tbody='';
   toShow.forEach(function(t){
-    var tbody=document.getElementById('hist-rows-'+t.id);
-    if(!tbody)return;
-    var req=t.reqHrs;
-    var tRows=periods.filter(function(p){return p.entries.find(function(e){return e.id===t.id;});});
-    var run=0;
-    tRows.forEach(function(p){
-      var pIdx=periods.indexOf(p);
-      var e=p.entries.find(function(x){return x.id===t.id;});
-      run+=e.hrs;
-      var tr=document.createElement('tr');
-      var pct=req?Math.min(Math.round(run/req*100),100):null;
-      tr.innerHTML='<td style="font-size:13px">'+fd(p.from)+' – '+fd(p.to)+'</td>'
-        +'<td><strong style="color:var(--gold2)">'+e.hrs+'</strong> hrs</td>'
-        +'<td>'+run+' hrs'+(pct!==null?' <span style="font-size:12px;color:var(--text3)">('+pct+'%)</span>':'')+'</td>'
-        +'<td></td>';
-      var editBtn=document.createElement('button');
-      editBtn.className='btn-outline btn-sm';
-      editBtn.style.padding='3px 9px';
-      editBtn.innerHTML='<i class="ti ti-edit" style="font-size:11px;margin-right:3px"></i>Edit';
-      editBtn.onclick=(function(pid,tid,eRef){
-        return function(){
-          var cell=tr.cells[1];
-          cell.innerHTML='';
-          var inp=document.createElement('input');
-          inp.type='number'; inp.min='0'; inp.step='0.5'; inp.value=eRef.hrs;
-          inp.style.cssText='width:72px;font-size:14.5px;padding:3px 7px;border:1px solid rgba(37,99,235,.5);border-radius:6px;background:var(--bg3);color:var(--text);font-family:Inter,sans-serif;outline:none;margin-right:5px;';
-          var saveBtn=document.createElement('button');
-          saveBtn.className='btn-gold btn-sm'; saveBtn.style.cssText='padding:3px 9px;margin-right:4px;';
-          saveBtn.innerHTML='<i class="ti ti-check" style="font-size:11px"></i>';
-          var cancelBtn=document.createElement('button');
-          cancelBtn.className='btn-sm'; cancelBtn.style.padding='3px 9px';
-          cancelBtn.innerHTML='<i class="ti ti-x" style="font-size:11px"></i>';
-          cell.appendChild(inp); cell.appendChild(saveBtn); cell.appendChild(cancelBtn);
-          inp.focus(); inp.select();
-          saveBtn.onclick=function(){
-            var newHrs=parseFloat(inp.value);
-            if(isNaN(newHrs)||newHrs<0){alert('Enter a valid number.');return;}
-            eRef.hrs=newHrs;
-            saveData(); renderTracker(); renderHistory();
-          };
-          cancelBtn.onclick=function(){ renderHistory(); };
-        };
-      })(pIdx, t.id, e);
-      var delBtn=document.createElement('button');
-      delBtn.className='btn-danger btn-sm';
-      delBtn.style.cssText='padding:3px 9px;margin-left:5px;';
-      delBtn.innerHTML='<i class="ti ti-trash" style="font-size:11px"></i>';
-      delBtn.onclick=(function(pIdx2,tid2){
-        return function(){
-          if(!confirm('Delete this covering period entry for this trainee?'))return;
-          var p3=periods[pIdx2]; if(!p3)return;
-          p3.entries=p3.entries.filter(function(x){return x.id!==tid2;});
-          /* if period has no more entries remove it entirely */
-          if(!p3.entries.length) periods.splice(pIdx2,1);
-          saveData(); renderTracker(); renderHistory();
-        };
-      })(pIdx, t.id);
-      tr.cells[3].appendChild(editBtn);
-      tr.cells[3].appendChild(delBtn);
-      tbody.appendChild(tr);
-    });
+    var total=getTH(t.id),req=t.reqHrs,pct=req?Math.min(Math.round(total/req*100),100):null,bc=AC[t.aff]||'#475569';
+    tbody+='<tr onclick="openHoursModal(\''+t.id+'\')" style="cursor:pointer;border-bottom:1px solid var(--b);transition:background .12s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'\'">'
+      +'<td style="padding:10px 12px;font-weight:600;color:var(--text);white-space:nowrap"><span style="display:inline-block;width:3px;height:14px;background:'+bc+';border-radius:2px;margin-right:8px;vertical-align:middle"></span>'+t.name+'</td>'
+      +'<td style="padding:10px 12px">'+affBadge(t.aff)+'</td>'
+      +'<td style="padding:10px 12px"><span class="badge '+(t.batch==='2026'?'b-gold':'b-n')+'">'+t.batch+'</span></td>'
+      +'<td style="padding:10px 12px">'+total+' hrs</td>'
+      +'<td style="padding:10px 12px;color:var(--text2)">'+(req?req+' hrs':'—')+'</td>'
+      +'<td style="padding:10px 12px"><div style="display:flex;align-items:center;gap:6px"><div class="pbg"><div class="pbar" style="width:'+(pct||0)+'%;background:'+bc+'"></div></div><span style="font-size:11.5px;color:var(--text3);min-width:28px;text-align:right">'+(pct!==null?pct+'%':'')+'</span></div></td>'
+      +'<td style="padding:10px 12px">'+pBadge(total,req)+'</td>'
+      +'</tr>';
   });
+  tbl.innerHTML+=tbody+'</tbody>';
+  w.innerHTML='';
+  var tableWrap=document.createElement('div');
+  tableWrap.style.cssText='overflow-y:auto;flex:1;border-radius:var(--rl);border:1px solid var(--b2);';
+  tableWrap.appendChild(tbl);
+  w.appendChild(tableWrap);
+}
+
+function openHoursModal(id){
+  var t=TR.find(function(x){return x.id===id;}); if(!t) return;
+  var total=getTH(t.id),req=t.reqHrs,pct=req?Math.min(Math.round(total/req*100),100):null,bc=AC[t.aff]||'#475569';
+
+  document.getElementById('hrs-modal-title').innerHTML=t.name
+    +' <span style="font-size:13px;font-weight:400;color:var(--text3)">'+t.id+'</span>';
+  var body=document.getElementById('hrs-modal-body');
+  body.innerHTML='';
+
+  var summDiv=document.createElement('div');
+  summDiv.style.cssText='padding:10px 14px;background:var(--bg3);border-radius:var(--r);margin-bottom:12px';
+  summDiv.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">'
+    +'<span style="font-size:13px;color:var(--text2)">'+t.aff+' · '+t.pos+' · '+t.cc+' · Batch '+t.batch+'</span>'
+    +'<span style="font-size:14px;font-weight:600;color:var(--gold2)">'+total+' hrs'+(req?' <span style="font-size:12px;font-weight:400;color:var(--text3)">of '+req+' required · '+pct+'%</span>':'')+'</span>'
+    +'</div>'
+    +(req?'<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:6px;border-radius:3px;width:'+pct+'%;background:'+bc+';transition:width .35s"></div></div>':'');
+  body.appendChild(summDiv);
+
+  var tbl=document.createElement('table');
+  tbl.innerHTML='<thead><tr><th>Covering period</th><th>Hours rendered</th><th>Running total</th><th style="width:130px">Actions</th></tr></thead><tbody id="hrs-modal-rows"></tbody>';
+  body.appendChild(tbl);
+
+  var tbody=document.getElementById('hrs-modal-rows');
+  var tRows=periods.filter(function(p){return p.entries.find(function(e){return e.id===t.id;});});
+  var run=0;
+  tRows.forEach(function(p){
+    var pIdx=periods.indexOf(p);
+    var e=p.entries.find(function(x){return x.id===t.id;});
+    run+=e.hrs;
+    var tr=document.createElement('tr');
+    var rpct=req?Math.min(Math.round(run/req*100),100):null;
+    tr.innerHTML='<td style="font-size:13px">'+fd(p.from)+' – '+fd(p.to)+'</td>'
+      +'<td><strong style="color:var(--gold2)">'+e.hrs+'</strong> hrs</td>'
+      +'<td>'+run+' hrs'+(rpct!==null?' <span style="font-size:12px;color:var(--text3)">('+rpct+'%)</span>':'')+'</td>'
+      +'<td></td>';
+    var editBtn=document.createElement('button');
+    editBtn.className='btn-outline btn-sm';
+    editBtn.style.padding='3px 9px';
+    editBtn.innerHTML='<i class="ti ti-edit" style="font-size:11px;margin-right:3px"></i>Edit';
+    editBtn.onclick=(function(tid,eRef){
+      return function(){
+        var cell=tr.cells[1];
+        cell.innerHTML='';
+        var inp=document.createElement('input');
+        inp.type='number'; inp.min='0'; inp.step='0.5'; inp.value=eRef.hrs;
+        inp.style.cssText='width:72px;font-size:14.5px;padding:3px 7px;border:1px solid rgba(37,99,235,.5);border-radius:6px;background:var(--bg3);color:var(--text);font-family:Inter,sans-serif;outline:none;margin-right:5px;';
+        var saveBtn=document.createElement('button');
+        saveBtn.className='btn-gold btn-sm'; saveBtn.style.cssText='padding:3px 9px;margin-right:4px;';
+        saveBtn.innerHTML='<i class="ti ti-check" style="font-size:11px"></i>';
+        var cancelBtn=document.createElement('button');
+        cancelBtn.className='btn-sm'; cancelBtn.style.padding='3px 9px';
+        cancelBtn.innerHTML='<i class="ti ti-x" style="font-size:11px"></i>';
+        cell.appendChild(inp); cell.appendChild(saveBtn); cell.appendChild(cancelBtn);
+        inp.focus(); inp.select();
+        saveBtn.onclick=function(){
+          var newHrs=parseFloat(inp.value);
+          if(isNaN(newHrs)||newHrs<0){alert('Enter a valid number.');return;}
+          eRef.hrs=newHrs;
+          saveData(); renderTracker(); renderHistory(); openHoursModal(tid);
+        };
+        cancelBtn.onclick=function(){ openHoursModal(tid); };
+      };
+    })(t.id, e);
+    var delBtn=document.createElement('button');
+    delBtn.className='btn-danger btn-sm';
+    delBtn.style.cssText='padding:3px 9px;margin-left:5px;';
+    delBtn.innerHTML='<i class="ti ti-trash" style="font-size:11px"></i>';
+    delBtn.onclick=(function(pIdx2,tid2){
+      return function(){
+        if(!confirm('Delete this covering period entry for this trainee?'))return;
+        var p3=periods[pIdx2]; if(!p3)return;
+        p3.entries=p3.entries.filter(function(x){return x.id!==tid2;});
+        /* if period has no more entries remove it entirely */
+        if(!p3.entries.length) periods.splice(pIdx2,1);
+        saveData(); renderTracker(); renderHistory();
+        if(getTH(tid2)>0) openHoursModal(tid2); else closeModal('hrs-modal');
+      };
+    })(pIdx, t.id);
+    tr.cells[3].appendChild(editBtn);
+    tr.cells[3].appendChild(delBtn);
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('hrs-modal').classList.add('open');
 }
 
 
