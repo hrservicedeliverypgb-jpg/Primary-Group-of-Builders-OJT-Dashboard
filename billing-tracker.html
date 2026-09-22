@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Primary Group of Builders — Billing Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#eef1f6;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;--bg5:#cbd5e1;
+  --gold:#14213d;--gold2:#1b3a6b;--gold3:#4d7cc7;
+  --text:#1e293b;--text2:#64748b;--text3:#94a3b8;
+  --b:rgba(15,23,42,.07);--b2:rgba(15,23,42,.13);--b3:rgba(15,23,42,.2);
+  --card:#1b3a6b;--card-bg:rgba(27,58,107,.1);--card-b:rgba(27,58,107,.28);
+  --agency:#ea580c;--agency-bg:rgba(249,115,22,.1);--agency-b:rgba(249,115,22,.3);
+  --ok:#16a34a;--ok-bg:rgba(34,197,94,.12);
+  --warn:#d97706;--warn-bg:rgba(245,158,11,.12);
+  --csi:#0284c7;--csi-bg:rgba(56,189,248,.1);
+  --err:#dc2626;--err-bg:rgba(239,68,68,.12);
+  --r:8px;--rl:14px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14.5px;line-height:1.55;display:flex;flex-direction:column;height:100vh;}
+
+/* HEADER */
+.hdr{padding:1.15rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--gold);gap:14px;flex-wrap:wrap;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-emblem{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold3));display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 20px rgba(37,99,235,.3);}
+.hdr-title{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;color:#fff;}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;}
+.legend{display:flex;gap:6px;flex-wrap:wrap;}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,.9);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+
+/* NAV */
+.nav-wrap{padding:0 1.5rem;flex-shrink:0;background:var(--gold);border-bottom:1px solid rgba(0,0,0,.18);}
+.nav{display:flex;flex-wrap:wrap;}
+.nav-btn{padding:10px 18px;font-size:14.5px;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.65);font-family:'Inter',sans-serif;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.nav-btn:hover{color:#fff;background:rgba(255,255,255,.07);}
+.nav-btn.on{color:#fff;border-bottom-color:var(--gold3);font-weight:500;}
+
+/* CONTENT */
+.content{flex:1;overflow:hidden;padding:1rem 1.5rem;display:flex;flex-direction:column;}
+.tab{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.tab.on{display:flex;}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding-right:2px;}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:.9rem;flex-shrink:0;}
+.kpi{background:var(--bg2);border:1px solid var(--b2);border-radius:var(--rl);padding:.8rem 1rem;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.kpi-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.kpi-val{font-size:24px;font-weight:600;color:var(--text);font-family:'Playfair Display',serif;line-height:1.1;word-break:break-word;}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:7px;margin-bottom:.7rem;flex-shrink:0;align-items:center;flex-wrap:wrap;}
+.s-wrap{position:relative;flex:1;min-width:180px;}
+.s-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none;}
+.sinp{width:100%;font-size:14.5px;padding:7px 10px 7px 32px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:'Inter',sans-serif;outline:none;}
+.sinp:focus{border-color:rgba(37,99,235,.5);}
+.sinp::placeholder{color:var(--text3);}
+.fsel{font-size:14.5px;padding:8px 10px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:'Inter',sans-serif;outline:none;cursor:pointer;}
+.fsel:focus{border-color:rgba(37,99,235,.5);}
+.fsel option{background:var(--bg2);}
+
+/* TABLE */
+.tw{overflow-y:auto;overflow-x:auto;flex:1;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;}
+th{text-align:left;padding:8px 10px;font-weight:600;color:var(--gold);font-size:11px;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;background:#f8fafc;box-shadow:inset 0 -1px 0 rgba(37,99,235,.2),0 3px 8px rgba(15,23,42,.06);position:sticky;top:0;z-index:2;}
+td{padding:8px 10px;border-bottom:1px solid var(--b);color:var(--text);vertical-align:middle;}
+tbody tr:hover td{background:var(--bg3);}
+tr:last-child td{border-bottom:none;}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.mono{font-family:'Courier New',monospace;font-size:12.5px;color:var(--text3);}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--b2);border-radius:var(--rl);padding:1rem 1.1rem;margin-bottom:.75rem;}
+.card.gb{border-color:rgba(37,99,235,.25);}
+.ct{font-size:12.5px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px;display:flex;align-items:center;gap:5px;}
+
+/* SOURCE BADGE */
+.sb{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;padding:3px 11px;border-radius:20px;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;}
+.sb i{font-size:12px;flex-shrink:0;}
+.sb-card{background:var(--card-bg);color:var(--card);border:1px solid var(--card-b);}
+.sb-agency{background:var(--agency-bg);color:var(--agency);border:1px solid var(--agency-b);}
+
+/* STATUS SELECT */
+.bsel{font-size:13px;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;width:auto;border:1px solid;outline:none;}
+.bsel-received{background:var(--warn-bg);color:var(--warn);border-color:rgba(245,158,11,.3);}
+.bsel-forwarded{background:var(--csi-bg);color:var(--csi);border-color:rgba(56,189,248,.3);}
+.bsel-paid{background:var(--ok-bg);color:var(--ok);border-color:rgba(34,197,94,.3);}
+
+/* BADGE */
+.badge{display:inline-block;font-size:12.5px;padding:2px 9px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.b-err{background:var(--err-bg);color:var(--err);}
+.b-warn{background:var(--warn-bg);color:var(--warn);}
+.b-n{background:var(--bg3);color:var(--text2);border:1px solid var(--b2);}
+
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ff{margin-bottom:10px;}
+label{font-size:14px;color:var(--text2);display:block;margin-bottom:4px;}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font-size:13.5px;padding:7px 10px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:'Inter',sans-serif;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:rgba(37,99,235,.5);}
+input::placeholder,textarea::placeholder{color:var(--text3);}
+select option{background:var(--bg2);}
+
+/* BUTTONS */
+button{padding:7px 16px;border-radius:var(--r);font-size:14.5px;cursor:pointer;border:1px solid var(--b2);background:var(--bg3);color:var(--text);font-family:'Inter',sans-serif;transition:all .12s;}
+button:hover{background:var(--bg4);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;font-weight:600;}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 15px rgba(37,99,235,.25);}
+.btn-outline{background:transparent;border:1px solid rgba(37,99,235,.4);color:var(--gold2);}
+.btn-outline:hover{background:rgba(37,99,235,.08);}
+.btn-danger{background:var(--err-bg);color:var(--err);border:1px solid rgba(239,68,68,.3);}
+.btn-danger:hover{opacity:.85;}
+.btn-sm{padding:4px 9px;font-size:12px;}
+.icon-btn{padding:5px 8px;border-radius:6px;line-height:1;}
+
+/* CHARTS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:22px;min-height:150px;padding:8px 0;flex-wrap:wrap;}
+.dleg{display:flex;flex-direction:column;gap:9px;}
+.dleg-item{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text2);}
+.dleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.dleg-val{font-weight:600;color:var(--text);margin-left:3px;font-variant-numeric:tabular-nums;}
+.bar-item{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.bar-label{color:var(--text2);width:150px;font-size:13px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;min-width:40px;}
+.bar-fill{height:8px;border-radius:4px;}
+.bar-val{color:var(--text);font-size:12.5px;font-weight:500;min-width:90px;text-align:right;font-variant-numeric:tabular-nums;}
+
+/* EXEC SUMMARY */
+.exec-summary{background:linear-gradient(135deg,rgba(37,99,235,.07),rgba(37,99,235,.03));border:1px solid rgba(37,99,235,.25);border-radius:var(--rl);padding:1.1rem 1.25rem;}
+.exec-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--gold2);margin-bottom:.6rem;display:flex;align-items:center;gap:7px;}
+.exec-body{font-size:14.5px;color:var(--text2);line-height:1.85;}
+.exec-body strong{color:var(--text);}
+.exec-body .exec-highlight{color:var(--gold2);font-weight:600;}
+.exec-body .exec-warn{color:var(--warn);font-weight:500;}
+.exec-body .exec-ok{color:var(--ok);font-weight:500;}
+.exec-body .exec-err{color:var(--err);font-weight:500;}
+.exec-divider{height:1px;background:rgba(37,99,235,.15);margin:.6rem 0;}
+
+/* LIST ROWS (overview) */
+.mini-row{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--bg3);border-radius:var(--r);border-left:3px solid var(--gold3);}
+.mini-row.od{border-left-color:var(--err);}
+.mini-main{flex:1;min-width:0;}
+.mini-name{margin:0;font-size:13.5px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mini-sub{margin:1px 0 0;font-size:12px;color:var(--text3);}
+.mini-amt{font-size:13.5px;font-weight:600;color:var(--gold2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+/* EMPTY STATE */
+.es{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:14.5px;}
+.es i{font-size:36px;display:block;margin-bottom:8px;opacity:.2;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:1.75rem;width:min(620px,95vw);max-height:90vh;overflow-y:auto;position:relative;}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--text);margin-bottom:1.25rem;padding-right:2rem;}
+.modal-close{position:absolute;top:1.1rem;right:1.1rem;background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;}
+.modal-close:hover{color:var(--text);background:var(--bg3);}
+.modal-sec{font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin:1rem 0 8px;border-bottom:1px solid var(--b);padding-bottom:6px;}
+.modal-actions{display:flex;gap:8px;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--b);}
+.confirm-box{background:var(--bg2);border:1px solid rgba(239,68,68,.4);border-radius:16px;padding:2rem;width:min(400px,92vw);text-align:center;}
+.confirm-msg{color:var(--text);font-size:14px;margin-bottom:1.5rem;line-height:1.6;}
+.confirm-msg strong{color:#dc2626;display:block;font-size:16px;margin-bottom:6px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.2rem;right:1.5rem;background:var(--bg2);box-shadow:0 8px 24px rgba(15,23,42,.15);border:1px solid rgba(34,197,94,.35);color:#15803d;font-size:14.5px;padding:7px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9999;font-family:'Inter',sans-serif;}
+.toast.show{opacity:1;}
+
+@media(max-width:760px){.two-col,.fg,.fg3{grid-template-columns:1fr;}.nav-btn span{display:none;}.bar-label{width:110px;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-emblem"><i class="ti ti-receipt"></i></div>
+    <div>
+      <div class="hdr-title">Primary Group of Builders — Billing Tracker</div>
+      <div class="hdr-sub">Corporate card &amp; travel agency billings &nbsp;·&nbsp; Received → Accounting → Paid</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:var(--card)"></div>Corporate Card</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--agency)"></div>Travel Agency</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.65)" id="hdr-date"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <div class="nav">
+    <button class="nav-btn on" onclick="showTab('t-overview',this)"><i class="ti ti-layout-dashboard" style="font-size:16px"></i><span>Overview</span></button>
+    <button class="nav-btn" onclick="showTab('t-billings',this)"><i class="ti ti-list-details" style="font-size:16px"></i><span>Billings</span></button>
+    <button class="nav-btn" onclick="showTab('t-add',this)"><i class="ti ti-circle-plus" style="font-size:16px"></i><span>Add billing</span></button>
+    <button class="nav-btn" onclick="showTab('t-summary',this)"><i class="ti ti-chart-pie" style="font-size:16px"></i><span>Summary</span></button>
+    <button class="nav-btn" onclick="showTab('t-export',this)"><i class="ti ti-download" style="font-size:16px"></i><span>Export</span></button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="t-overview" class="tab on">
+  <div class="scroll-area">
+    <div class="kpi-row" id="ov-kpis"></div>
+    <div class="two-col">
+      <div class="card gb" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-chart-donut"></i>Amount by status</div>
+        <div id="ov-status-chart" class="donut-wrap"></div>
+      </div>
+      <div class="card gb" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-building-bank"></i>Amount by source</div>
+        <div id="ov-src-chart" style="display:flex;flex-direction:column;justify-content:center;min-height:150px;padding:4px 0"></div>
+      </div>
+    </div>
+    <div id="ov-summary" style="margin-bottom:10px"></div>
+    <div class="two-col" style="margin-bottom:0">
+      <div class="card" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-alert-triangle"></i>Needs attention</div>
+        <div id="ov-attention" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-clock"></i>Recently added</div>
+        <div id="ov-recent" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BILLINGS ═══ -->
+<div id="t-billings" class="tab">
+  <div class="kpi-row" id="bill-kpis"></div>
+  <div class="toolbar">
+    <div class="s-wrap"><i class="ti ti-search"></i><input class="sinp" id="bill-search" placeholder="Search reference, provider, period, notes…" oninput="renderTable()"></div>
+    <select class="fsel" id="bill-fcat" onchange="renderTable()"><option value="">All sources</option><option value="card">Corporate Card</option><option value="agency">Travel Agency</option></select>
+    <select class="fsel" id="bill-fprov" onchange="renderTable()"><option value="">All providers</option></select>
+    <select class="fsel" id="bill-fstatus" onchange="renderTable()"><option value="">All statuses</option><option value="received">Received</option><option value="forwarded">With Accounting</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select>
+  </div>
+  <div class="card gb" style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin-bottom:0">
+    <div class="ct"><i class="ti ti-table"></i><span id="bill-count">Billing records</span></div>
+    <div class="tw"><table><thead><tr>
+      <th>Reference</th><th>Source</th><th>Billing period</th><th class="num">Amount</th><th>Received</th><th>Due</th><th>Status</th><th>Forwarded</th><th>Paid on</th><th>Actions</th>
+    </tr></thead><tbody id="tb-bill"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ ADD BILLING ═══ -->
+<div id="t-add" class="tab">
+  <div class="scroll-area">
+    <div class="card gb" style="max-width:820px">
+      <div class="ct"><i class="ti ti-receipt-2"></i>Add billing record</div>
+      <div class="fg">
+        <div><label>Source type</label><select id="nb-cat"><option value="card">Corporate Card</option><option value="agency">Travel Agency</option></select></div>
+        <div><label>Card / Agency name</label><input type="text" id="nb-provider" list="provider-list" placeholder="e.g. BDO Corporate Card, Rajah Travel"><datalist id="provider-list"></datalist></div>
+      </div>
+      <div class="fg">
+        <div><label>Reference / Invoice / Statement no.</label><input type="text" id="nb-ref" placeholder="e.g. INV-2026-014"></div>
+        <div><label>Billing period / description</label><input type="text" id="nb-period" placeholder="e.g. January 2026 statement"></div>
+      </div>
+      <div class="fg3">
+        <div><label>Amount (₱)</label><input type="number" id="nb-amount" step="0.01" min="0" placeholder="0.00"></div>
+        <div><label>Date received</label><input type="date" id="nb-received"></div>
+        <div><label>Due date</label><input type="date" id="nb-due"></div>
+      </div>
+      <div class="fg3">
+        <div><label>Status</label><select id="nb-status" onchange="syncAddDates()"><option value="received">Received</option><option value="forwarded">With Accounting</option><option value="paid">Paid</option></select></div>
+        <div><label>Forwarded to Accounting</label><input type="date" id="nb-forwarded"></div>
+        <div><label>Date paid</label><input type="date" id="nb-paid"></div>
+      </div>
+      <div class="ff"><label>Notes</label><textarea id="nb-notes" rows="2" placeholder="Any notes — e.g. charges covered, endorsement details…"></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-gold" onclick="addBill()"><i class="ti ti-check" style="font-size:14.5px;margin-right:4px"></i>Save billing</button>
+        <button class="btn-outline" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUMMARY ═══ -->
+<div id="t-summary" class="tab">
+  <div class="scroll-area">
+    <div class="kpi-row" id="sum-kpis"></div>
+    <div class="two-col">
+      <div class="card gb" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-progress"></i>Pipeline (amount)</div>
+        <div id="sum-pipeline" style="padding:6px 2px"></div>
+      </div>
+      <div class="card gb" style="margin-bottom:0">
+        <div class="ct"><i class="ti ti-plane"></i>By provider</div>
+        <div id="sum-provider" style="display:flex;flex-direction:column;justify-content:center;min-height:150px;padding:4px 0"></div>
+      </div>
+    </div>
+    <div class="card gb">
+      <div class="ct"><i class="ti ti-calendar-stats"></i>Monthly totals (by date received)</div>
+      <div id="sum-monthly"></div>
+    </div>
+    <div id="sum-narrative"></div>
+  </div>
+</div>
+
+<!-- ═══ EXPORT ═══ -->
+<div id="t-export" class="tab">
+  <div class="scroll-area">
+    <div style="margin-bottom:1rem">
+      <p style="font-size:14px;font-weight:500;color:var(--text)">Export data</p>
+      <p style="font-size:14px;color:var(--text2);margin-top:3px">Download your billing records as a CSV file, ready to open in Excel or Google Sheets — handy for endorsing to Accounting.</p>
+    </div>
+    <div class="card gb" style="margin-bottom:.75rem">
+      <div class="ct"><i class="ti ti-file-spreadsheet"></i>Billing records</div>
+      <p style="font-size:14.5px;color:var(--text2);margin-bottom:1rem">Export every billing record with all fields — source, provider, reference, amount, dates, and status. Filter first if you only need part of it.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.9rem">
+        <select class="fsel" id="exp-cat"><option value="">All sources</option><option value="card">Corporate Card</option><option value="agency">Travel Agency</option></select>
+        <select class="fsel" id="exp-status"><option value="">All statuses</option><option value="received">Received</option><option value="forwarded">With Accounting</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select>
+      </div>
+      <button class="btn-gold" onclick="exportBills()"><i class="ti ti-download" style="font-size:14.5px;margin-right:5px"></i>Download billings CSV</button>
+    </div>
+    <div class="card" style="margin-bottom:.75rem;background:linear-gradient(135deg,rgba(220,38,38,.06),rgba(220,38,38,.02));border-color:rgba(239,68,68,.3)">
+      <div class="ct" style="color:var(--err)"><i class="ti ti-database-cog"></i>Data management</div>
+      <p style="font-size:14.5px;color:var(--text2);margin-bottom:1rem">Your billing data is saved in this browser. Back it up as a JSON file, restore it on another device, or clear everything to start fresh.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-outline" onclick="backupJSON()"><i class="ti ti-file-download" style="font-size:14px;margin-right:5px"></i>Backup (JSON)</button>
+        <button class="btn-outline" onclick="document.getElementById('restore-file').click()"><i class="ti ti-file-upload" style="font-size:14px;margin-right:5px"></i>Restore (JSON)</button>
+        <input type="file" id="restore-file" accept=".json,application/json" style="display:none" onchange="restoreJSON(this)">
+        <button class="btn-danger" onclick="clearAll()"><i class="ti ti-trash" style="font-size:14px;margin-right:5px"></i>Clear all data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit billing</div>
+    <button class="modal-close" onclick="closeModal('edit-modal')"><i class="ti ti-x"></i></button>
+    <input type="hidden" id="eb-id">
+    <div class="modal-sec">Source</div>
+    <div class="fg"><div><label>Source type</label><select id="eb-cat"><option value="card">Corporate Card</option><option value="agency">Travel Agency</option></select></div><div><label>Card / Agency name</label><input type="text" id="eb-provider" list="provider-list"></div></div>
+    <div class="fg"><div><label>Reference / Invoice no.</label><input type="text" id="eb-ref"></div><div><label>Billing period</label><input type="text" id="eb-period"></div></div>
+    <div class="modal-sec">Amount &amp; status</div>
+    <div class="fg"><div><label>Amount (₱)</label><input type="number" id="eb-amount" step="0.01" min="0"></div><div><label>Status</label><select id="eb-status"><option value="received">Received</option><option value="forwarded">With Accounting</option><option value="paid">Paid</option></select></div></div>
+    <div class="modal-sec">Dates</div>
+    <div class="fg3"><div><label>Date received</label><input type="date" id="eb-received"></div><div><label>Due date</label><input type="date" id="eb-due"></div><div><label>Forwarded</label><input type="date" id="eb-forwarded"></div></div>
+    <div class="ff"><label>Date paid</label><input type="date" id="eb-paid"></div>
+    <div class="ff"><label>Notes</label><textarea id="eb-notes" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-gold" onclick="saveEdit()"><i class="ti ti-check" style="font-size:14.5px;margin-right:4px"></i>Save changes</button>
+      <button onclick="closeModal('edit-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-bg" id="del-modal">
+  <div class="confirm-box">
+    <div class="confirm-msg"><strong>Delete this billing record?</strong><span id="del-msg"></span> This permanently removes it from the tracker and cannot be undone.</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-danger" id="del-confirm"><i class="ti ti-trash" style="font-size:14.5px;margin-right:4px"></i>Delete billing</button>
+      <button onclick="closeModal('del-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-device-floppy" style="font-size:14.5px;margin-right:5px"></i>Saved</div>
+
+<script>
+/* ══════════════ BILLING TRACKER ══════════════
+   Standalone dashboard for tracking corporate-card statements and travel-agency
+   invoices through the workflow: Received → forwarded to Accounting → Paid.
+   Data is stored in this browser's localStorage (key: pgb_billing_v1). */
+
+var LS_KEY = 'pgb_billing_v1';
+var BILLS = [];
+
+var STATUS = {
+  received:  {label:'Received',        color:'#d97706', icon:'ti-inbox'},
+  forwarded: {label:'With Accounting', color:'#0284c7', icon:'ti-send'},
+  paid:      {label:'Paid',            color:'#16a34a', icon:'ti-circle-check'}
+};
+
+/* ── helpers ── */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function money(n){ var v=Number(n)||0; return '₱'+v.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function moneyShort(n){
+  var v=Number(n)||0;
+  if(v>=1e6) return '₱'+(v/1e6).toFixed(2)+'M';
+  if(v>=1e3) return '₱'+(v/1e3).toFixed(1)+'k';
+  return '₱'+v.toFixed(0);
+}
+function fmtDate(d){
+  if(!d) return '—';
+  var dt=new Date(d+'T00:00:00');
+  if(isNaN(dt.getTime())) return esc(d);
+  return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+}
+function isOverdue(b){ return b.status!=='paid' && b.due && b.due < today(); }
+function nextId(){
+  var max=0;
+  BILLS.forEach(function(b){ var n=parseInt(String(b.id).replace(/\D/g,''),10); if(!isNaN(n)&&n>max) max=n; });
+  return 'BILL'+String(max+1).padStart(4,'0');
+}
+function catLabel(c){ return c==='card'?'Corporate Card':'Travel Agency'; }
+function sourceBadge(b){
+  var isCard=b.cat==='card';
+  var name=b.provider || catLabel(b.cat);
+  return '<span class="sb '+(isCard?'sb-card':'sb-agency')+'" title="'+esc(name)+'"><i class="ti '+(isCard?'ti-credit-card':'ti-plane')+'"></i>'+esc(name)+'</span>';
+}
+function statusSelect(b){
+  var s='<select class="bsel bsel-'+b.status+'" onchange="setStatus(\''+b.id+'\',this.value)">';
+  Object.keys(STATUS).forEach(function(k){
+    s+='<option value="'+k+'"'+(b.status===k?' selected':'')+'>'+STATUS[k].label+'</option>';
+  });
+  return s+'</select>';
+}
+function kpiCard(label,val,sub,color){
+  return '<div class="kpi"><p class="kpi-label">'+label+'</p><p class="kpi-val" style="color:'+(color||'var(--text)')+'">'+val+'</p>'+(sub?'<p class="kpi-sub">'+sub+'</p>':'')+'</div>';
+}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(msg) t.lastChild.textContent=' '+msg;
+  t.classList.add('show'); clearTimeout(t._t);
+  t._t=setTimeout(function(){t.classList.remove('show');},1800);
+}
+
+/* ── persistence ── */
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(BILLS)); }catch(e){ console.warn('Save failed:',e); }
+}
+function load(){
+  try{ var s=localStorage.getItem(LS_KEY); if(s){ var p=JSON.parse(s); if(Array.isArray(p)) BILLS=p; } }
+  catch(e){ console.warn('Load failed:',e); }
+}
+
+/* ── nav ── */
+function showTab(id,btn){
+  document.querySelectorAll('.tab').forEach(function(e){e.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach(function(e){e.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  renderAll();
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ── aggregation ── */
+function totals(list){
+  var t={count:list.length, amount:0, received:0, forwarded:0, paid:0, recvAmt:0, fwdAmt:0, paidAmt:0, overdue:0, overdueAmt:0, pendingAmt:0};
+  list.forEach(function(b){
+    var a=Number(b.amount)||0;
+    t.amount+=a;
+    if(b.status==='received'){ t.received++; t.recvAmt+=a; }
+    else if(b.status==='forwarded'){ t.forwarded++; t.fwdAmt+=a; }
+    else if(b.status==='paid'){ t.paid++; t.paidAmt+=a; }
+    if(b.status!=='paid') t.pendingAmt+=a;
+    if(isOverdue(b)){ t.overdue++; t.overdueAmt+=a; }
+  });
+  return t;
+}
+function providerColor(name, i){
+  var palette=['#1b3a6b','#ea580c','#0284c7','#16a34a','#9333ea','#d97706','#dc2626','#0891b2','#4d7cc7'];
+  return palette[i % palette.length];
+}
+
+/* ── donut ── */
+function donut(segments, centerVal, centerLabel){
+  var tot=segments.reduce(function(s,d){return s+d.val;},0)||1;
+  var ang=-Math.PI/2, paths='';
+  segments.forEach(function(d){
+    if(!d.val) return;
+    var sw=2*Math.PI*d.val/tot, R=52, r2=30, cx=65, cy=65;
+    var x1=cx+R*Math.cos(ang), y1=cy+R*Math.sin(ang), x2=cx+R*Math.cos(ang+sw), y2=cy+R*Math.sin(ang+sw);
+    var ix1=cx+r2*Math.cos(ang), iy1=cy+r2*Math.sin(ang), ix2=cx+r2*Math.cos(ang+sw), iy2=cy+r2*Math.sin(ang+sw);
+    var lg=sw>Math.PI?1:0;
+    paths+='<path d="M'+ix1+','+iy1+' L'+x1+','+y1+' A'+R+','+R+' 0 '+lg+',1 '+x2+','+y2+' L'+ix2+','+iy2+' A'+r2+','+r2+' 0 '+lg+',0 '+ix1+','+iy1+'" fill="'+d.color+'"/>';
+    ang+=sw;
+  });
+  var leg=segments.map(function(d){
+    return '<div class="dleg-item"><span class="dleg-dot" style="background:'+d.color+'"></span>'+d.label+'<span class="dleg-val">'+d.disp+'</span></div>';
+  }).join('');
+  return '<svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">'+paths
+    +'<text x="65" y="61" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="600" font-family="serif">'+centerVal+'</text>'
+    +'<text x="65" y="74" text-anchor="middle" fill="#4a5568" font-size="7.5" font-family="sans-serif" letter-spacing="1">'+centerLabel+'</text>'
+    +'</svg><div class="dleg">'+leg+'</div>';
+}
+function srcBars(target){
+  var byProv={};
+  BILLS.forEach(function(b){ var k=b.provider||catLabel(b.cat); if(!byProv[k]) byProv[k]={amt:0,cat:b.cat}; byProv[k].amt+=Number(b.amount)||0; });
+  var entries=Object.keys(byProv).map(function(k){return [k,byProv[k]];}).sort(function(a,b){return b[1].amt-a[1].amt;});
+  var el=document.getElementById(target);
+  if(!entries.length){ el.innerHTML='<div class="es"><i class="ti ti-building-bank"></i>No billings yet.</div>'; return; }
+  var max=Math.max.apply(null,entries.map(function(e){return e[1].amt;}))||1;
+  el.innerHTML=entries.map(function(e){
+    var col=e[1].cat==='card'?'#1b3a6b':'#ea580c';
+    return '<div class="bar-item"><span class="bar-label" title="'+esc(e[0])+'">'+esc(e[0])+'</span>'
+      +'<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1].amt/max*100)+'%;background:'+col+'"></div></div>'
+      +'<span class="bar-val">'+money(e[1].amt)+'</span></div>';
+  }).join('');
+}
+
+/* ── overview ── */
+function renderOverview(){
+  var t=totals(BILLS);
+  document.getElementById('ov-kpis').innerHTML=
+    kpiCard('Total billings', t.count, 'All records', 'var(--gold2)')+
+    kpiCard('Total amount', money(t.amount), 'All billings', '#1b3a6b')+
+    kpiCard('Outstanding', money(t.pendingAmt), (t.received+t.forwarded)+' not yet paid', '#d97706')+
+    kpiCard('With Accounting', money(t.fwdAmt), t.forwarded+' forwarded', '#0284c7')+
+    kpiCard('Paid', money(t.paidAmt), t.paid+' processed', '#16a34a')+
+    kpiCard('Overdue', t.overdue, t.overdue?money(t.overdueAmt):'None', t.overdue?'#dc2626':'#94a3b8');
+
+  document.getElementById('ov-status-chart').innerHTML = t.amount?
+    donut([
+      {label:'Received',val:t.recvAmt,color:STATUS.received.color,disp:money(t.recvAmt)},
+      {label:'With Accounting',val:t.fwdAmt,color:STATUS.forwarded.color,disp:money(t.fwdAmt)},
+      {label:'Paid',val:t.paidAmt,color:STATUS.paid.color,disp:money(t.paidAmt)}
+    ], moneyShort(t.amount), 'TOTAL')
+    : '<div class="es"><i class="ti ti-chart-donut"></i>No billings yet.</div>';
+
+  srcBars('ov-src-chart');
+
+  /* exec summary */
+  var el=document.getElementById('ov-summary');
+  if(!t.count){
+    el.innerHTML='<div class="exec-summary"><div class="exec-title"><i class="ti ti-file-text" style="font-size:16px"></i>Getting started</div><div class="exec-body">No billings recorded yet. Head to <strong>Add billing</strong> to log your first corporate-card statement or travel-agency invoice. Once added, you can track each one from <span class="exec-highlight">Received</span> to <span class="exec-warn">With Accounting</span> to <span class="exec-ok">Paid</span>.</div></div>';
+  } else {
+    var cardAmt=BILLS.filter(function(b){return b.cat==='card';}).reduce(function(s,b){return s+(Number(b.amount)||0);},0);
+    var agAmt=t.amount-cardAmt;
+    var odLine=t.overdue? ' <span class="exec-err">'+t.overdue+' billing'+(t.overdue>1?'s are':' is')+' overdue</span> ('+money(t.overdueAmt)+') and need'+(t.overdue>1?'':'s')+' follow-up with Accounting.' : ' <span class="exec-ok">Nothing is overdue.</span>';
+    el.innerHTML='<div class="exec-summary"><div class="exec-title"><i class="ti ti-file-text" style="font-size:16px"></i>Billing summary</div><div class="exec-body">'
+      +'You are tracking <strong>'+t.count+' billing'+(t.count>1?'s':'')+'</strong> worth <span class="exec-highlight">'+money(t.amount)+'</span> in total — '
+      +'<strong>'+money(cardAmt)+'</strong> on the corporate card and <strong>'+money(agAmt)+'</strong> from travel agencies.'
+      +'<div class="exec-divider"></div>'
+      +'<span class="exec-ok">'+money(t.paidAmt)+' paid</span> · <span class="exec-warn">'+money(t.fwdAmt)+' with Accounting</span> · <span class="exec-highlight">'+money(t.recvAmt)+' awaiting endorsement</span>.'
+      +odLine
+      +'</div></div>';
+  }
+
+  /* needs attention: overdue first, then received (awaiting endorsement) */
+  var att=BILLS.filter(function(b){return b.status!=='paid';}).slice().sort(function(a,b){
+    var ao=isOverdue(a)?0:1, bo=isOverdue(b)?0:1;
+    if(ao!==bo) return ao-bo;
+    return (a.due||'9999')<(b.due||'9999')?-1:1;
+  }).slice(0,6);
+  var ae=document.getElementById('ov-attention');
+  ae.innerHTML = att.length? att.map(function(b){
+    var od=isOverdue(b);
+    return '<div class="mini-row'+(od?' od':'')+'">'
+      +'<div class="mini-main"><p class="mini-name">'+esc(b.provider||catLabel(b.cat))+(b.ref?' · '+esc(b.ref):'')+'</p>'
+      +'<p class="mini-sub">'+STATUS[b.status].label+' · due '+fmtDate(b.due)+(od?' <span class="badge b-err" style="margin-left:4px">Overdue</span>':'')+'</p></div>'
+      +'<span class="mini-amt">'+money(b.amount)+'</span></div>';
+  }).join('') : '<p style="color:var(--text3);font-size:13px">Nothing pending — all billings are paid. 🎉</p>';
+
+  var recent=BILLS.slice().sort(function(a,b){return (b.created||0)-(a.created||0);}).slice(0,6);
+  var re=document.getElementById('ov-recent');
+  re.innerHTML = recent.length? recent.map(function(b){
+    return '<div class="mini-row" style="border-left-color:'+(b.cat==='card'?'#1b3a6b':'#ea580c')+'">'
+      +'<div class="mini-main"><p class="mini-name">'+esc(b.provider||catLabel(b.cat))+(b.period?' · '+esc(b.period):'')+'</p>'
+      +'<p class="mini-sub">'+catLabel(b.cat)+' · received '+fmtDate(b.received)+'</p></div>'
+      +'<span class="mini-amt">'+money(b.amount)+'</span></div>';
+  }).join('') : '<p style="color:var(--text3);font-size:13px">No billings yet.</p>';
+}
+
+/* ── billings table ── */
+function renderTable(){
+  var t=totals(BILLS);
+  document.getElementById('bill-kpis').innerHTML=
+    kpiCard('Total billings', t.count, money(t.amount), 'var(--gold2)')+
+    kpiCard('Awaiting endorsement', t.received, money(t.recvAmt), '#d97706')+
+    kpiCard('With Accounting', t.forwarded, money(t.fwdAmt), '#0284c7')+
+    kpiCard('Paid', t.paid, money(t.paidAmt), '#16a34a')+
+    kpiCard('Overdue', t.overdue, t.overdue?money(t.overdueAmt):'None', t.overdue?'#dc2626':'#94a3b8');
+
+  var q=(document.getElementById('bill-search').value||'').trim().toLowerCase();
+  var cf=document.getElementById('bill-fcat').value;
+  var pf=document.getElementById('bill-fprov').value;
+  var sf=document.getElementById('bill-fstatus').value;
+  var list=BILLS.filter(function(b){
+    if(cf && b.cat!==cf) return false;
+    if(pf && (b.provider||catLabel(b.cat))!==pf) return false;
+    if(sf==='overdue'){ if(!isOverdue(b)) return false; }
+    else if(sf && b.status!==sf) return false;
+    if(q){
+      var hay=[b.id,b.provider,b.ref,b.period,b.notes,catLabel(b.cat)].join(' ').toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  }).sort(function(a,b){
+    var ao=isOverdue(a)?0:1, bo=isOverdue(b)?0:1;
+    if(ao!==bo) return ao-bo;
+    return (b.received||'')<(a.received||'')?-1:((b.received||'')>(a.received||'')?1:0);
+  });
+
+  document.getElementById('bill-count').textContent = 'Billing records ('+list.length+(list.length!==BILLS.length?' of '+BILLS.length:'')+')';
+  var tb=document.getElementById('tb-bill');
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="10"><div class="es"><i class="ti ti-file-invoice"></i>'+(BILLS.length?'No billings match your filters.':'No billings yet. Add one from the “Add billing” tab.')+'</div></td></tr>';
+  } else {
+    tb.innerHTML=list.map(function(b){
+      var od=isOverdue(b);
+      return '<tr>'
+        +'<td class="mono">'+esc(b.ref||b.id)+'</td>'
+        +'<td>'+sourceBadge(b)+'</td>'
+        +'<td>'+(b.period?esc(b.period):'<span style="color:var(--text3)">—</span>')+'</td>'
+        +'<td class="num" style="font-weight:600">'+money(b.amount)+'</td>'
+        +'<td>'+fmtDate(b.received)+'</td>'
+        +'<td>'+fmtDate(b.due)+(od?' <span class="badge b-err">Overdue</span>':'')+'</td>'
+        +'<td>'+statusSelect(b)+'</td>'
+        +'<td>'+fmtDate(b.forwarded)+'</td>'
+        +'<td>'+fmtDate(b.paid)+'</td>'
+        +'<td style="white-space:nowrap"><button class="btn-outline icon-btn" title="Edit" onclick="openEdit(\''+b.id+'\')"><i class="ti ti-edit"></i></button> '
+        +'<button class="btn-danger icon-btn" title="Delete" onclick="openDelete(\''+b.id+'\')"><i class="ti ti-trash"></i></button></td>'
+        +'</tr>';
+    }).join('');
+  }
+}
+
+/* ── status quick-change ── */
+function setStatus(id,val){
+  var b=BILLS.find(function(x){return x.id===id;}); if(!b) return;
+  b.status=val;
+  var d=today();
+  if(val==='forwarded' && !b.forwarded) b.forwarded=d;
+  if(val==='paid'){ if(!b.forwarded) b.forwarded=d; if(!b.paid) b.paid=d; }
+  save(); renderAll(); showToast('Status updated');
+}
+
+/* ── add ── */
+function syncAddDates(){
+  var st=document.getElementById('nb-status').value, d=today();
+  if(st!=='received' && !document.getElementById('nb-forwarded').value) document.getElementById('nb-forwarded').value=d;
+  if(st==='paid' && !document.getElementById('nb-paid').value) document.getElementById('nb-paid').value=d;
+}
+function addBill(){
+  var provider=document.getElementById('nb-provider').value.trim();
+  var amount=parseFloat(document.getElementById('nb-amount').value);
+  if(!provider){ alert('Please enter the card or travel agency name.'); return; }
+  if(isNaN(amount) || amount<0){ alert('Please enter a valid billing amount.'); return; }
+  var b={
+    id: nextId(),
+    cat: document.getElementById('nb-cat').value,
+    provider: provider,
+    ref: document.getElementById('nb-ref').value.trim(),
+    period: document.getElementById('nb-period').value.trim(),
+    amount: amount,
+    received: document.getElementById('nb-received').value,
+    due: document.getElementById('nb-due').value,
+    forwarded: document.getElementById('nb-forwarded').value,
+    paid: document.getElementById('nb-paid').value,
+    status: document.getElementById('nb-status').value,
+    notes: document.getElementById('nb-notes').value.trim(),
+    created: Date.now()
+  };
+  BILLS.push(b);
+  save(); clearForm(); renderAll();
+  showToast('Billing added');
+  document.querySelectorAll('.nav-btn').forEach(function(e){e.classList.remove('on');});
+  var nav=document.querySelectorAll('.nav-btn')[1]; if(nav) nav.classList.add('on');
+  document.querySelectorAll('.tab').forEach(function(e){e.classList.remove('on');});
+  document.getElementById('t-billings').classList.add('on');
+}
+function clearForm(){
+  ['nb-provider','nb-ref','nb-period','nb-amount','nb-due','nb-forwarded','nb-paid','nb-notes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('nb-cat').value='card';
+  document.getElementById('nb-status').value='received';
+  document.getElementById('nb-received').value=today();
+}
+
+/* ── edit ── */
+function openEdit(id){
+  var b=BILLS.find(function(x){return x.id===id;}); if(!b) return;
+  document.getElementById('eb-id').value=b.id;
+  document.getElementById('eb-cat').value=b.cat;
+  document.getElementById('eb-provider').value=b.provider||'';
+  document.getElementById('eb-ref').value=b.ref||'';
+  document.getElementById('eb-period').value=b.period||'';
+  document.getElementById('eb-amount').value=b.amount;
+  document.getElementById('eb-status').value=b.status;
+  document.getElementById('eb-received').value=b.received||'';
+  document.getElementById('eb-due').value=b.due||'';
+  document.getElementById('eb-forwarded').value=b.forwarded||'';
+  document.getElementById('eb-paid').value=b.paid||'';
+  document.getElementById('eb-notes').value=b.notes||'';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function saveEdit(){
+  var id=document.getElementById('eb-id').value;
+  var b=BILLS.find(function(x){return x.id===id;}); if(!b) return;
+  var provider=document.getElementById('eb-provider').value.trim();
+  var amount=parseFloat(document.getElementById('eb-amount').value);
+  if(!provider){ alert('Please enter the card or travel agency name.'); return; }
+  if(isNaN(amount) || amount<0){ alert('Please enter a valid billing amount.'); return; }
+  b.cat=document.getElementById('eb-cat').value;
+  b.provider=provider;
+  b.ref=document.getElementById('eb-ref').value.trim();
+  b.period=document.getElementById('eb-period').value.trim();
+  b.amount=amount;
+  b.status=document.getElementById('eb-status').value;
+  b.received=document.getElementById('eb-received').value;
+  b.due=document.getElementById('eb-due').value;
+  b.forwarded=document.getElementById('eb-forwarded').value;
+  b.paid=document.getElementById('eb-paid').value;
+  b.notes=document.getElementById('eb-notes').value.trim();
+  save(); closeModal('edit-modal'); renderAll(); showToast('Changes saved');
+}
+
+/* ── delete ── */
+function openDelete(id){
+  var b=BILLS.find(function(x){return x.id===id;}); if(!b) return;
+  document.getElementById('del-msg').textContent=' '+(b.provider||catLabel(b.cat))+(b.ref?' ('+b.ref+')':'')+' — '+money(b.amount)+'.';
+  document.getElementById('del-confirm').onclick=function(){
+    BILLS=BILLS.filter(function(x){return x.id!==id;});
+    save(); closeModal('del-modal'); renderAll(); showToast('Billing deleted');
+  };
+  document.getElementById('del-modal').classList.add('open');
+}
+
+/* ── summary ── */
+function renderSummary(){
+  var t=totals(BILLS);
+  document.getElementById('sum-kpis').innerHTML=
+    kpiCard('Total billed', money(t.amount), t.count+' record'+(t.count!==1?'s':''), '#1b3a6b')+
+    kpiCard('Paid', money(t.paidAmt), t.amount?Math.round(t.paidAmt/t.amount*100)+'% of total':'0%', '#16a34a')+
+    kpiCard('Outstanding', money(t.pendingAmt), (t.received+t.forwarded)+' open', '#d97706')+
+    kpiCard('Overdue', money(t.overdueAmt), t.overdue+' billing'+(t.overdue!==1?'s':''), t.overdue?'#dc2626':'#94a3b8');
+
+  /* pipeline stacked bar */
+  var pe=document.getElementById('sum-pipeline');
+  if(!t.amount){ pe.innerHTML='<div class="es"><i class="ti ti-progress"></i>No billings yet.</div>'; }
+  else{
+    var stages=[
+      {label:'Received',amt:t.recvAmt,count:t.received,color:STATUS.received.color},
+      {label:'With Accounting',amt:t.fwdAmt,count:t.forwarded,color:STATUS.forwarded.color},
+      {label:'Paid',amt:t.paidAmt,count:t.paid,color:STATUS.paid.color}
+    ];
+    var seg=stages.filter(function(s){return s.amt>0;}).map(function(s){
+      return '<div title="'+s.label+': '+money(s.amt)+'" style="width:'+(s.amt/t.amount*100)+'%;background:'+s.color+'"></div>';
+    }).join('');
+    pe.innerHTML='<div style="display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--bg4);margin-bottom:14px">'+seg+'</div>'
+      +stages.map(function(s){
+        return '<div class="bar-item"><span class="bar-label" style="width:150px"><span class="dleg-dot" style="display:inline-block;background:'+s.color+';margin-right:6px"></span>'+s.label+'</span>'
+          +'<div class="bar-track"><div class="bar-fill" style="width:'+(s.amt/t.amount*100)+'%;background:'+s.color+'"></div></div>'
+          +'<span class="bar-val">'+money(s.amt)+' · '+s.count+'</span></div>';
+      }).join('');
+  }
+
+  srcBars('sum-provider');
+
+  /* monthly totals by received month */
+  var byMonth={};
+  BILLS.forEach(function(b){
+    var m=(b.received||'').slice(0,7)||'—';
+    if(!byMonth[m]) byMonth[m]={amt:0,count:0};
+    byMonth[m].amt+=Number(b.amount)||0; byMonth[m].count++;
+  });
+  var months=Object.keys(byMonth).filter(function(m){return m!=='—';}).sort().slice(-12);
+  var me=document.getElementById('sum-monthly');
+  if(!months.length){ me.innerHTML='<div class="es"><i class="ti ti-calendar-off"></i>No dated billings yet.</div>'; }
+  else{
+    var max=Math.max.apply(null,months.map(function(m){return byMonth[m].amt;}))||1;
+    me.innerHTML=months.map(function(m){
+      var dt=new Date(m+'-01T00:00:00');
+      var lbl=isNaN(dt.getTime())?m:dt.toLocaleDateString('en-PH',{month:'short',year:'numeric'});
+      return '<div class="bar-item"><span class="bar-label" style="width:110px">'+lbl+'</span>'
+        +'<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(byMonth[m].amt/max*100)+'%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div></div>'
+        +'<span class="bar-val">'+money(byMonth[m].amt)+'</span></div>';
+    }).join('');
+  }
+
+  /* narrative */
+  var ne=document.getElementById('sum-narrative');
+  if(!t.count){ ne.innerHTML=''; return; }
+  var cardT=totals(BILLS.filter(function(b){return b.cat==='card';}));
+  var agT=totals(BILLS.filter(function(b){return b.cat==='agency';}));
+  ne.innerHTML='<div class="exec-summary"><div class="exec-title"><i class="ti ti-report-money" style="font-size:16px"></i>Reading this report</div><div class="exec-body">'
+    +'<strong>Corporate card:</strong> '+cardT.count+' billing'+(cardT.count!==1?'s':'')+' totalling <span class="exec-highlight">'+money(cardT.amount)+'</span> ('+money(cardT.paidAmt)+' paid, '+money(cardT.pendingAmt)+' outstanding).'
+    +'<div class="exec-divider"></div>'
+    +'<strong>Travel agencies:</strong> '+agT.count+' billing'+(agT.count!==1?'s':'')+' totalling <span class="exec-highlight">'+money(agT.amount)+'</span> ('+money(agT.paidAmt)+' paid, '+money(agT.pendingAmt)+' outstanding).'
+    +(t.overdue?'<div class="exec-divider"></div><span class="exec-err">'+t.overdue+' billing'+(t.overdue>1?'s are':' is')+' past due</span> for a combined '+money(t.overdueAmt)+'.':'')
+    +'</div></div>';
+}
+
+/* ── export ── */
+function makeCSV(rows){
+  return rows.map(function(r){
+    return r.map(function(v){
+      var s=String(v==null?'':v);
+      if(s.indexOf(',')!==-1||s.indexOf('"')!==-1||s.indexOf('\n')!==-1) s='"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(',');
+  }).join('\r\n');
+}
+function download(filename, content, type){
+  var blob=new Blob([content],{type:type||'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function exportBills(){
+  var cf=document.getElementById('exp-cat').value, sf=document.getElementById('exp-status').value;
+  var list=BILLS.filter(function(b){
+    if(cf && b.cat!==cf) return false;
+    if(sf==='overdue'){ if(!isOverdue(b)) return false; }
+    else if(sf && b.status!==sf) return false;
+    return true;
+  });
+  if(!list.length){ alert('No billings match the selected filters.'); return; }
+  var rows=[['ID','Source Type','Provider','Reference','Billing Period','Amount','Date Received','Due Date','Status','Overdue','Forwarded to Accounting','Date Paid','Notes']];
+  list.forEach(function(b){
+    rows.push([b.id, catLabel(b.cat), b.provider||'', b.ref||'', b.period||'', (Number(b.amount)||0).toFixed(2), b.received||'', b.due||'', STATUS[b.status].label, isOverdue(b)?'Yes':'No', b.forwarded||'', b.paid||'', b.notes||'']);
+  });
+  download('PGB_Billings_'+today()+'.csv', makeCSV(rows));
+}
+function backupJSON(){
+  download('PGB_Billings_Backup_'+today()+'.json', JSON.stringify(BILLS,null,2), 'application/json');
+}
+function restoreJSON(input){
+  var file=input.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!Array.isArray(data)) throw new Error('Not a billing backup');
+      if(!confirm('Restore '+data.length+' billing record'+(data.length!==1?'s':'')+'? This replaces all current data in this browser.')) { input.value=''; return; }
+      BILLS=data; save(); renderAll(); showToast('Data restored');
+    }catch(err){ alert('Could not read that file — it does not look like a billing backup.'); }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+function clearAll(){
+  if(!confirm('Clear ALL billing data from this browser? This cannot be undone. Consider a JSON backup first.')) return;
+  if(!confirm('Are you absolutely sure? Every billing record will be permanently removed.')) return;
+  BILLS=[]; save(); renderAll(); showToast('All data cleared');
+}
+
+/* ── provider filter/datalist refresh ── */
+function refreshProviders(){
+  var provs={};
+  BILLS.forEach(function(b){ var k=b.provider||catLabel(b.cat); provs[k]=true; });
+  var names=Object.keys(provs).sort();
+  var dl=document.getElementById('provider-list');
+  dl.innerHTML=names.map(function(n){return '<option value="'+esc(n)+'">';}).join('');
+  var sel=document.getElementById('bill-fprov');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">All providers</option>'+names.map(function(n){return '<option'+(n===cur?' selected':'')+'>'+esc(n)+'</option>';}).join('');
+}
+
+/* ── render all ── */
+function renderAll(){
+  refreshProviders();
+  renderOverview();
+  renderTable();
+  renderSummary();
+}
+
+/* ── init ── */
+load();
+document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('nb-received').value=today();
+renderAll();
+</script>
+</body>
+</html>
