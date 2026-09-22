@@ -329,7 +329,7 @@ button:hover{background:var(--bg4);}
     </div>
     <div class="card" style="margin-bottom:.75rem;background:linear-gradient(135deg,rgba(220,38,38,.06),rgba(220,38,38,.02));border-color:rgba(239,68,68,.3)">
       <div class="ct" style="color:var(--err)"><i class="ti ti-database-cog"></i>Data management</div>
-      <p style="font-size:14.5px;color:var(--text2);margin-bottom:1rem">Your billing data is saved in this browser. Back it up as a JSON file, restore it on another device, or clear everything to start fresh.</p>
+      <p style="font-size:14.5px;color:var(--text2);margin-bottom:1rem">Your billing data syncs live across everyone who opens this tracker, and is cached in this browser for offline use. Back it up as a JSON file, restore from one, or clear everything to start fresh.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn-outline" onclick="backupJSON()"><i class="ti ti-file-download" style="font-size:14px;margin-right:5px"></i>Backup (JSON)</button>
         <button class="btn-outline" onclick="document.getElementById('restore-file').click()"><i class="ti ti-file-upload" style="font-size:14px;margin-right:5px"></i>Restore (JSON)</button>
@@ -381,7 +381,9 @@ button:hover{background:var(--bg4);}
 /* ══════════════ BILLING TRACKER ══════════════
    Standalone dashboard for tracking corporate-card statements and travel-agency
    invoices through the workflow: Received → forwarded to Accounting → Paid.
-   Data is stored in this browser's localStorage (key: pgb_billing_v1). */
+   Records sync live across every browser via Firestore (see the module script
+   at the bottom); localStorage (key: pgb_billing_v1) is the offline / instant-
+   paint fallback. */
 
 var LS_KEY = 'pgb_billing_v1';
 var BILLS = [];
@@ -874,6 +876,58 @@ load();
 document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 document.getElementById('nb-received').value=today();
 renderAll();
+</script>
+
+<script type="module">
+/* ── FIRESTORE SYNC ──
+   Shares billing records across every browser that opens this tracker — the same
+   mechanism (and Firebase project) the OJT dashboard uses. localStorage stays as
+   the offline / instant-paint fallback: load() and the first renderAll() already
+   ran synchronously before this module executes. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCuaA8MKEE3w7ajYD5p3TvQDOBOqYLe1Is",
+  authDomain: "pgb-ojt-dashboard.firebaseapp.com",
+  projectId: "pgb-ojt-dashboard",
+  storageBucket: "pgb-ojt-dashboard.firebasestorage.app",
+  messagingSenderId: "380313634770",
+  appId: "1:380313634770:web:327fab3501a192491aaa0b",
+  measurementId: "G-ER0NERG0W9"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+/* Its own document inside the same ojt_state collection the OJT dashboard uses — a
+   separate doc id ('billing') so it never collides with the trainees/periods/etc.
+   docs, while staying under the collection the project's Firestore rules already
+   allow (no security-rule changes needed). */
+const billDoc = doc(db, 'ojt_state', 'billing');
+
+let seeded = false;
+onSnapshot(billDoc, function(snap){
+  if(snap.exists()){
+    const list = snap.data().list || [];
+    /* mutate the existing array in place so the main script's BILLS binding stays valid */
+    window.BILLS.length = 0;
+    list.forEach(function(b){ window.BILLS.push(b); });
+    try{ localStorage.setItem('pgb_billing_v1', JSON.stringify(window.BILLS)); }catch(e){}
+    window.renderAll();
+  } else if(!seeded){
+    /* first ever run — seed the shared doc with whatever this browser already has */
+    setDoc(billDoc, {list: window.BILLS || []}).catch(function(e){ console.warn('Firestore seed (billing) failed:', e); });
+  }
+  seeded = true;
+}, function(e){ console.warn('Billing sync error:', e); });
+
+/* save() keeps its instant localStorage write and now also pushes BILLS up to
+   Firestore so every other open tracker picks up the change. */
+const localSave = window.save;
+window.save = function(){
+  if(typeof localSave === 'function') localSave();
+  setDoc(billDoc, {list: window.BILLS}).catch(function(e){ console.warn('Firestore save (billing) failed:', e); });
+};
 </script>
 </body>
 </html>
